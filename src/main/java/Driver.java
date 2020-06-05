@@ -1,9 +1,14 @@
-import util.ConnectionUtil;
+import dao.*;
+import models.User;
 
 public class Driver {
 
 	public static void main(String[] args) {
-		ConnectionUtil.getConnection();
+		IUserDAO dao = new UserDAO();
+		
+		for(User u : dao.findAll()) {
+			System.out.println(u);
+		}
 	}
 
 }

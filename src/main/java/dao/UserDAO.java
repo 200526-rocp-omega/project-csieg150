@@ -11,7 +11,7 @@ import models.Role;
 import models.User;
 import util.ConnectionUtil;
 
-public class UserDao implements IUserDAO {
+public class UserDAO implements IUserDAO {
 
 	@Override
 	public int insert(User u) {
