@@ -102,13 +102,18 @@ public class UserDAO implements IUserDAO {
 			
 			// The below updates all fields
 			String sql = "UPDATE USERS SET "
-					+ "USERNAME = " + uname +", PASSWORD = " + pass + ", FIRST_NAME = " + fName 
-					+ ", LAST_NAME = " + lName + ", EMAIL = " + email 
-					+ " WHERE ID = " + id; 
+					+ "USERNAME = ?, PASSWORD = ?, FIRST_NAME = ?, LAST_NAME = ?, EMAIL = ? WHERE ID = ?"; 
 			
-			Statement stmnt = conn.createStatement();
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setString(1, uname);
+			stmnt.setString(2, pass);
+			stmnt.setString(3, fName);
+			stmnt.setString(4, lName);
+			stmnt.setString(5, email);
+			stmnt.setInt(6, roleID);
+			stmnt.setInt(7, id);
 			
-			result = stmnt.executeUpdate(sql);
+			result = stmnt.executeUpdate();
 		} catch(SQLException e) {
 			e.printStackTrace();
 			return result; // If something goes wrong, return 0 for '0 changed rows'.
