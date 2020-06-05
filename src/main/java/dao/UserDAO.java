@@ -23,9 +23,6 @@ public class UserDAO implements IUserDAO {
 			String pass = u.getPassword();
 			String fName = u.getFirstName();
 			String lName = u.getLastName();
-//			String emailA = u.getEmail().substring(0, u.getEmail().indexOf('@')); // Grabs portion of email before @
-//			String emailB = u.getEmail().substring(u.getEmail().indexOf('@')+1); // Grabs portion of email after @
-//			String email = emailA + "@" + emailB; //howwwww
 			String email = u.getEmail();
 			int roleID = u.getRole().getRoleId();
 			
