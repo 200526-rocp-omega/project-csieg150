@@ -34,7 +34,7 @@ public class UserDao implements IUserDAO {
 			ResultSet rs = stmnt.executeQuery(sql); // Right as this is executed, the query runs to the database and grabs the info
 			
 			while(rs.next()) { // For each entry in the result set
-				int id = rs.getInt(0); // Grab the user id
+				int id = rs.getInt("USERS.id"); // Grab the user id
 				String username = rs.getString("username"); // grab username
 				String password = rs.getString("password"); // grab pass
 				String fName = rs.getString("first_name"); // grab first name
