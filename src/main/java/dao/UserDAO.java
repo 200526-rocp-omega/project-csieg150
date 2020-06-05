@@ -27,10 +27,10 @@ public class UserDAO implements IUserDAO {
 			int roleID = u.getRole().getRoleId();
 			
 			// The below updates all fields
-			String sql = "UPDATE USERS SET "
-					+ "USERNAME = " + uname +", PASSWORD = " + pass + ", FIRST_NAME = " + fName 
-					+ ", LAST_NAME = " + lName + ", EMAIL = " + email 
-					+ " WHERE ID = " + id; 
+			String sql = "INSERT INTO USERS "
+					+ "(id,username,password,first_name,last_name,email,role_id)"
+					+ " VALUES (" + id + ", " + uname + ", " + pass + ", " + fName + ", "
+					+ lName + ", " + email + ", " + roleID + ")";
 			
 			Statement stmnt = conn.createStatement();
 			
