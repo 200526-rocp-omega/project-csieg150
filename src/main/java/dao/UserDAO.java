@@ -34,14 +34,14 @@ public class UserDAO implements IUserDAO {
 			ResultSet rs = stmnt.executeQuery(sql); // Right as this is executed, the query runs to the database and grabs the info
 			
 			while(rs.next()) { // For each entry in the result set
-				int id = rs.getInt("USERS.id"); // Grab the user id
-				String username = rs.getString("username"); // grab username
-				String password = rs.getString("password"); // grab pass
-				String fName = rs.getString("first_name"); // grab first name
-				String lName = rs.getString("last_name"); // grab last
-				String email = rs.getString("email"); // grab email
-				int roleID = rs.getInt("role_id"); // grab role id
-				String role = rs.getString("role"); // grab role name
+				int id = rs.getInt("ID"); // Grab the user id
+				String username = rs.getString("USERNAME"); // grab username
+				String password = rs.getString("PASSWORD"); // grab pass
+				String fName = rs.getString("FIRST_NAME"); // grab first name
+				String lName = rs.getString("LAST_NAME"); // grab last
+				String email = rs.getString("EMAIL"); // grab email
+				int roleID = rs.getInt("ROLE_ID"); // grab role id
+				String role = rs.getString("ROLE_NAME"); // grab role name
 				
 				Role r = new Role(roleID, role); // make role object
 				User u = new User(id,username,password,fName,lName,email,r); // make user object
@@ -52,7 +52,6 @@ public class UserDAO implements IUserDAO {
 			e.printStackTrace();
 			return new ArrayList<User>(); // If something goes wrong, return an empty list.
 		}
-		
 		return allUsers;
 	}
 
@@ -63,9 +62,30 @@ public class UserDAO implements IUserDAO {
 	}
 
 	@Override
-	public int update(User u) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int update(User u) { // Updates User data and returns the number of changed rows.
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// The below 'unpacks' all the information in the User object for neat SQL implementation
+			int id = u.getUserId();
+			String uname = u.getUsername();
+			String pass = u.getPassword();
+			String fName = u.getFirstName();
+			String lName = u.getLastName();
+			String email = u.getEmail();
+			int roleID = u.getRole().getRoleId();
+			
+			// The below updates all fields
+			String sql = "UPDATE USERS SET "
+					+ "USERNAME = " + uname +", PASSWORD = " + pass + ", FIRST_NAME = " + fName 
+					+ ", LAST_NAME = " + lName + ", EMAIL = " + email 
+					+ " WHERE ID = " + id; 
+			
+			Statement stmnt = conn.createStatement();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 	@Override
