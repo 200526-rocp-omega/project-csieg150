@@ -11,9 +11,11 @@ public class Driver {
 //		
 //		dao.insert(testUser);
 		
-		for(User u : dao.findAll()) {
-			System.out.println(u);
-		}
+//		for(User u : dao.findAll()) {
+//			System.out.println(u);
+//		}
+		
+		System.out.println(dao.findByUsername("sguy"));
 		
 	}
 

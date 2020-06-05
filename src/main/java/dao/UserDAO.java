@@ -82,9 +82,67 @@ public class UserDAO implements IUserDAO {
 	}
 
 	@Override
-	public User findByID(int id) {
-		// TODO Auto-generated method stub
-		return null;
+	public User findByID(int id) { // ID is primary key
+		User result = null;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			
+			String sql = "SELECT * FROM USERS INNER JOIN ROLES ON USERS.role_id = ROLES.id WHERE USERS.ID = ?";
+			
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setInt(1, id); // Defines the WHERE ID = ?
+			
+			ResultSet rs = stmnt.executeQuery(); // grabs result set of the query
+			
+			while(rs.next()) { // While there are results:
+				int uid = rs.getInt("ID"); // Grab the user id
+				String username = rs.getString("USERNAME"); // grab username
+				String password = rs.getString("PASSWORD"); // grab pass
+				String fName = rs.getString("FIRST_NAME"); // grab first name
+				String lName = rs.getString("LAST_NAME"); // grab last
+				String email = rs.getString("EMAIL"); // grab email
+				int roleID = rs.getInt("ROLE_ID"); // grab role id
+				String role = rs.getString("ROLE_NAME"); // grab role name
+
+				Role r = new Role(roleID, role); // make role object
+				result = new User(uid,username,password,fName,lName,email,r); // make user object
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
+	}
+	
+	@Override
+	public User findByUsername(String uname) { // Usernames are unique so only 1 user per username
+		User result = null;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			
+			String sql = "SELECT * FROM USERS INNER JOIN ROLES ON USERS.role_id = ROLES.id WHERE USERNAME = ?";
+			
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setString(1, uname); // Defines the WHERE ID = ?
+			
+			ResultSet rs = stmnt.executeQuery(); // grabs result set of the query
+			
+			while(rs.next()) { // While there are results:
+				int uid = rs.getInt("ID"); // Grab the user id
+				String username = rs.getString("USERNAME"); // grab username
+				String password = rs.getString("PASSWORD"); // grab pass
+				String fName = rs.getString("FIRST_NAME"); // grab first name
+				String lName = rs.getString("LAST_NAME"); // grab last
+				String email = rs.getString("EMAIL"); // grab email
+				int roleID = rs.getInt("ROLE_ID"); // grab role id
+				String role = rs.getString("ROLE_NAME"); // grab role name
+
+				Role r = new Role(roleID, role); // make role object
+				result = new User(uid,username,password,fName,lName,email,r); // make user object
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 	@Override
@@ -125,12 +183,6 @@ public class UserDAO implements IUserDAO {
 	public int delete(int id) {
 		// TODO Auto-generated method stub
 		return 0;
-	}
-
-	@Override
-	public User findByUsername(String username) {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 }
