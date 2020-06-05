@@ -15,8 +15,31 @@ public class UserDAO implements IUserDAO {
 
 	@Override
 	public int insert(User u) {
-		// TODO Auto-generated method stub
-		return 0;
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// The below 'unpacks' all the information in the User object for neat SQL implementation
+			int id = u.getUserId();
+			String uname = u.getUsername();
+			String pass = u.getPassword();
+			String fName = u.getFirstName();
+			String lName = u.getLastName();
+			String email = u.getEmail();
+			int roleID = u.getRole().getRoleId();
+			
+			// The below updates all fields
+			String sql = "UPDATE USERS SET "
+					+ "USERNAME = " + uname +", PASSWORD = " + pass + ", FIRST_NAME = " + fName 
+					+ ", LAST_NAME = " + lName + ", EMAIL = " + email 
+					+ " WHERE ID = " + id; 
+			
+			Statement stmnt = conn.createStatement();
+			
+			result = stmnt.executeUpdate(sql);
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 	@Override
@@ -81,6 +104,8 @@ public class UserDAO implements IUserDAO {
 					+ " WHERE ID = " + id; 
 			
 			Statement stmnt = conn.createStatement();
+			
+			result = stmnt.executeUpdate(sql);
 		} catch(SQLException e) {
 			e.printStackTrace();
 			return result; // If something goes wrong, return 0 for '0 changed rows'.
