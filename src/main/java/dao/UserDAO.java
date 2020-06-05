@@ -1,6 +1,7 @@
 package dao;
 
 import java.sql.Connection;
+import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -18,23 +19,28 @@ public class UserDAO implements IUserDAO {
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the User object for neat SQL implementation
-			int id = u.getUserId();
 			String uname = u.getUsername();
 			String pass = u.getPassword();
 			String fName = u.getFirstName();
 			String lName = u.getLastName();
+//			String emailA = u.getEmail().substring(0, u.getEmail().indexOf('@')); // Grabs portion of email before @
+//			String emailB = u.getEmail().substring(u.getEmail().indexOf('@')+1); // Grabs portion of email after @
+//			String email = emailA + "@" + emailB; //howwwww
 			String email = u.getEmail();
 			int roleID = u.getRole().getRoleId();
 			
 			// The below updates all fields
-			String sql = "INSERT INTO USERS "
-					+ "(id,username,password,first_name,last_name,email,role_id)"
-					+ " VALUES (" + id + ", " + uname + ", " + pass + ", " + fName + ", "
-					+ lName + ", " + email + ", " + roleID + ")";
+			String sql = "INSERT INTO USERS (username,password,first_name,last_name,email,role_id) VALUES (?, ?, ?, ?, ?, ?)";
 			
-			Statement stmnt = conn.createStatement();
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setString(1, uname);
+			stmnt.setString(2, pass);
+			stmnt.setString(3, fName);
+			stmnt.setString(4, lName);
+			stmnt.setString(5, email);
+			stmnt.setInt(6, roleID);
 			
-			result = stmnt.executeUpdate(sql);
+			result = stmnt.executeUpdate();
 		} catch(SQLException e) {
 			e.printStackTrace();
 			return result; // If something goes wrong, return 0 for '0 changed rows'.
