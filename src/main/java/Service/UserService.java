@@ -1,14 +1,14 @@
 package Service;
 
 import java.util.List;
-
-import dao.UserDAO;
-import models.User;
+import models.*;
+import dao.AbstractUserDAO;
+import dao.IAbstractUserDAO;
 
 public class UserService {
-	private static UserDAO uDAO = new UserDAO();
+	private static IAbstractUserDAO uDAO = new AbstractUserDAO();
 	
-	public int insert(User u) {
+	public int insert(AbstractUser u) {
 		int result = uDAO.insert(u); // determine if passed or not.
 		if(result > 0) {
 			int userId = uDAO.findByUsername(u.getUsername()).getUserId(); // Finds the auto-generated userID
@@ -17,14 +17,14 @@ public class UserService {
 		return result;
 	}
 	
-	public List<User> findAll(User currentUser){ // Pass in current user-list
+	public List<AbstractUser> findAll(User currentUser){ // Pass in current user-list
 		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
 			return null; // They shouldn't have access
 		}
 		return uDAO.findAll(); // No other logic needed 
 	}
 	
-	public User findByID(User currentUser, int id) {
+	public AbstractUser findByID(AbstractUser currentUser, int id) {
 		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
 			return null; // They shouldn't have access
 		}
@@ -34,7 +34,7 @@ public class UserService {
 		return uDAO.findByID(id);		
 	}
 	
-	public User findByUsername(User currentUser, String uname) {
+	public AbstractUser findByUsername(AbstractUser currentUser, String uname) {
 		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
 			return null; // They shouldn't have access
 		}
@@ -43,4 +43,28 @@ public class UserService {
 		}
 		return uDAO.findByUsername(uname);
 	}
+	
+	public int login(AbstractUser u) {
+		// Used to check if credentials match a user in the Database and return 1 for successful login? Not sure how to start a session yet
+		// Might just return a User object so the application can track their Role and ID
+		
+		return 0;
+	}
+	
+	public int logout(int loginStatus) {
+		// If the user is logged in, allow them to log back out and set the current user to 'guest' or whatever to remove access
+		return 0;
+	}
+	
+	public boolean withdraw(AbstractUser currentUser, AbstractAccount acc, int amount) {
+		// Given the current user and the account they want to withdraw from, how much? 
+		// If the amount is greater than balance or less than zero, throw an error
+		return false;
+	}
+	
+	public boolean deposit(AbstractUser currentUser, AbstractAccount acc, int amount) {
+		return false;
+	}
+	
+	
 }
