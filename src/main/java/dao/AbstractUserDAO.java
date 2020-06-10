@@ -162,7 +162,7 @@ public class AbstractUserDAO implements IAbstractUserDAO {
 			String sql = "UPDATE USERS SET "
 					+ "USERNAME = ?, PASSWORD = ?, FIRST_NAME = ?, LAST_NAME = ?, EMAIL = ? WHERE ID = ?"; 
 			
-			PreparedStatement stmnt = conn.prepareStatement(sql);
+			PreparedStatement stmnt = conn.prepareStatement(sql); //Insert values into statement
 			stmnt.setString(1, uname);
 			stmnt.setString(2, pass);
 			stmnt.setString(3, fName);
@@ -204,7 +204,7 @@ public class AbstractUserDAO implements IAbstractUserDAO {
 		AbstractUser result = null;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			
-			String sql = "SELECT * FROM AbstractAbstractUserS INNER JOIN ROLES ON AbstractAbstractUserS.role_id = ROLES.id WHERE EMAIL = ?";
+			String sql = "SELECT * FROM USERS INNER JOIN ROLES ON USERS.role_id = ROLES.id WHERE EMAIL = ?";
 			
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setString(1, email); // Defines the WHERE EMAIL = ?
@@ -223,6 +223,38 @@ public class AbstractUserDAO implements IAbstractUserDAO {
 
 				Role r = new Role(roleID, role); // make role object
 				result = new AbstractUser(uid,username,password,fName,lName,mail,r); // make AbstractAbstractUser object
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
+	}
+
+	@Override
+	public boolean checkPassword(String user, String pass) {
+		boolean result = false;
+		if(this.findByUsername(user) == null) { // If the 'find by user' yields no result then no need to continue.
+			System.out.println("User not found.");
+			return result;
+		}
+		System.out.println("Ok we did see: " + user);
+		try (Connection conn = ConnectionUtil.getConnection()) {
+
+			String sql = "SELECT PASSWORD FROM USERS WHERE USERNAME = ?";
+
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setString(1, user); // Defines the WHERE USERNAME = ?
+
+			ResultSet rs = stmnt.executeQuery(); // grabs result set of the query
+
+			while(rs.next()) { // While there are results:
+				String password = rs.getString("PASSWORD"); // grab pass
+				System.out.println("The passwords, the one there is: " + password + " / and the one we entered is: " + pass);
+				if(password.equals(pass)) {
+					System.out.println("It do match");
+					result = true;
+				}  // If the passwords match, 
 			}
 		} catch(SQLException e) {
 			e.printStackTrace();

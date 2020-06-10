@@ -2,6 +2,7 @@ package Service;
 
 import java.util.List;
 import models.*;
+import templates.LoginTemplate;
 import dao.AbstractUserDAO;
 import dao.IAbstractUserDAO;
 
@@ -34,21 +35,27 @@ public class UserService {
 		return uDAO.findByID(id);		
 	}
 	
-	public AbstractUser findByUsername(AbstractUser currentUser, String uname) {
-		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
-			return null; // They shouldn't have access
-		}
+	public AbstractUser findByUsername(String uname) {
+//		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
+//			return null; // They shouldn't have access
+//		}  // Currently not implemented
 		if(uname.contains("\n") || uname.equals("")) { //If blank string or having a newline character
 			throw new IllegalArgumentException(); // Not a valid username
 		}
 		return uDAO.findByUsername(uname);
 	}
 	
-	public int login(AbstractUser u) {
+	public AbstractUser login(LoginTemplate lt) {
 		// Used to check if credentials match a user in the Database and return 1 for successful login? Not sure how to start a session yet
 		// Might just return a User object so the application can track their Role and ID
-		
-		return 0;
+		AbstractUser u = null;
+		System.out.println(lt.getUsername());
+		System.out.println(lt.getPassword());
+		if(uDAO.checkPassword(lt.getUsername(), lt.getPassword()) == true) {
+			return this.findByUsername(lt.getUsername());
+		} 		
+		System.out.println("No match");
+		return u;
 	}
 	
 	public int logout(int loginStatus) {

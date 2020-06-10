@@ -26,7 +26,7 @@ public class AccountDAO implements IAccountDAO{
 			AccountType at = a.getType();
 			
 			// The below updates all fields
-			String sql = "INSERT INTO ACCOUNTS (id,balance,account_status,account_type) VALUES (?, ?, ?, ?)";
+			String sql = "INSERT INTO ACCOUNTS (id,balance,status_id,type_id) VALUES (?, ?, ?, ?)";
 			
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, accountID);
@@ -52,8 +52,8 @@ public class AccountDAO implements IAccountDAO{
 			
 			String sql = "SELECT *"
 					+ "FROM ACCOUNTS"
-					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status? = ACCOUNT_STATUS.id"
-					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type? = ACCOUNT_TYPE.id"; // gets all Users with the value of their role id displayed
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id"; // gets all Users with the value of their role id displayed
 			
 			Statement stmnt = conn.createStatement();
 			
@@ -63,9 +63,9 @@ public class AccountDAO implements IAccountDAO{
 				int id = rs.getInt("ACCOUNTS.ID"); // Grab the account id
 				double balance = rs.getDouble("ACCOUNTS.BALANCE");
 				int asID = rs.getInt("ACCOUNT_STATUS.ID");
-				String asStatus = rs.getString("ACCOUNT_STATUS.??");
+				String asStatus = rs.getString("ACCOUNT_STATUS.status");
 				int atID = rs.getInt("ACCOUNT_TYPE.ID");
-				String atType = rs.getString("ACCOUNT_TYPE.??");
+				String atType = rs.getString("ACCOUNT_TYPE.type");
 				
 				AccountStatus as = new AccountStatus(asID,asStatus);
 				AccountType at = new AccountType(atID, atType);
@@ -83,12 +83,6 @@ public class AccountDAO implements IAccountDAO{
 
 	@Override
 	public StandardAccount findByID(int id) {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	@Override
-	public StandardAccount findByUsername(String username) {
 		// TODO Auto-generated method stub
 		return null;
 	}
