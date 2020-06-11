@@ -14,7 +14,7 @@ import models.AbstractUser;
 public class UserController {
 private UserService us = new UserService(); // Lets us access User Service methods 
 	
-	protected void accessUser(HttpServletRequest req, HttpServletResponse rsp) 
+	public void accessUser(HttpServletRequest req, HttpServletResponse rsp) 
 			throws ServletException, IOException{ // Fetched when the page is loaded normally
 
 		HttpSession session = req.getSession(); // Creates a session 
@@ -47,4 +47,6 @@ private UserService us = new UserService(); // Lets us access User Service metho
 		AbstractUser result = us.findByID(userId);
 		
 	}
+	
+	
 }

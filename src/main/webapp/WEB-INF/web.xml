@@ -10,12 +10,18 @@
     <welcome-file>default.jsp</welcome-file>
   </welcome-file-list>
   
+  <context-param>
+  	<param-name>Context-Param</param-name>
+  	<param-value>Context-Value</param-value>
+  </context-param>
+ 
   <servlet>
-  	<servlet-name>LoginServlet</servlet-name>
-  	<servlet-class>web.LoginServlet</servlet-class>
+  	<servlet-name>FrontController</servlet-name>
+  	<servlet-class>web.FrontController</servlet-class>
+  	<load-on-startup>1</load-on-startup>
   </servlet>
   <servlet-mapping>
-  	<servlet-name>LoginServlet</servlet-name>
-  	<url-pattern>/login</url-pattern>
+  	<servlet-name>FrontController</servlet-name>
+  	<url-pattern>/*</url-pattern>
   </servlet-mapping>
 </web-app>

@@ -20,28 +20,47 @@ public class FrontController extends HttpServlet {
 	private static final UserController uc = new UserController();
 	private static final LoginController lc = new LoginController();
 	
+	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse rsp)
 		throws ServletException, IOException{
 			
-		String requestUri = req.getRequestURI(); //Determine where the 'get' is coming from
+		System.out.println("hi");
+		final String URI = req.getRequestURI().replace("/rocp-project", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		
-		switch(requestUri) {
+		
+		switch(URI) {
+		
+		case "/":
+			rsp.setStatus(200); // Unable to be found
+			rsp.getWriter().println("hi");
+			if(req.getSession().getAttribute("currentUser") != null) break; //If the user isn't logged in, get the login page
+			
 		case "/login":
 			lc.doGet(req, rsp);
 			break;
-		case "/user":
-			// code code code for user.doGet
+			
+		case "/logout":
+			lc.logout(req, rsp);
 			break;
+			
+		case "/user":
+			uc.accessUser(req,rsp);
+			break;
+			
+		default: 
+			rsp.setStatus(404); // Unable to be found
+			rsp.getWriter().println("URI does not exist");
 		}
 			
 	}
 	
+	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse rsp)
 			throws ServletException, IOException{
 
-		String requestUri = req.getRequestURI(); //Determine where the 'get' is coming from
+		final String URI = req.getRequestURI(); //Determine where the 'get' is coming from
 
-		switch(requestUri) {
+		switch(URI) {
 		case "/login":
 			lc.doPost(req, rsp, om);
 			break;
