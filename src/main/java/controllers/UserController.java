@@ -14,7 +14,7 @@ import models.AbstractUser;
 public class UserController {
 private UserService us = new UserService(); // Lets us access User Service methods 
 	
-	protected void doGet(HttpServletRequest req, HttpServletResponse rsp) 
+	protected void accessUser(HttpServletRequest req, HttpServletResponse rsp) 
 			throws ServletException, IOException{ // Fetched when the page is loaded normally
 
 		HttpSession session = req.getSession(); // Creates a session 
