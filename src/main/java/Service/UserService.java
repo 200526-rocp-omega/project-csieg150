@@ -25,10 +25,10 @@ public class UserService {
 		return uDAO.findAll(); // No other logic needed 
 	}
 	
-	public AbstractUser findByID(AbstractUser currentUser, int id) {
-		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
-			return null; // They shouldn't have access
-		}
+	public AbstractUser findByID(int id) {
+//		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
+//			return null; // They shouldn't have access
+//		}
 		if(id<1) {
 			throw new IllegalArgumentException(); // Id goes from 1 to above, anything else is an error.
 		}
@@ -63,13 +63,13 @@ public class UserService {
 		return 0;
 	}
 	
-	public boolean withdraw(AbstractUser currentUser, AbstractAccount acc, int amount) {
+	public boolean withdraw(AbstractAccount acc, int amount) {
 		// Given the current user and the account they want to withdraw from, how much? 
 		// If the amount is greater than balance or less than zero, throw an error
 		return false;
 	}
 	
-	public boolean deposit(AbstractUser currentUser, AbstractAccount acc, int amount) {
+	public boolean deposit(AbstractAccount acc, int amount) {
 		return false;
 	}
 	
