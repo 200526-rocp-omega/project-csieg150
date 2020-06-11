@@ -76,4 +76,19 @@ public class LoginController {
 			writer.println("Username or password incorrect");
 		}
 	}
+	
+	public void logout(HttpServletRequest req, HttpServletResponse rsp)
+			throws ServletException, IOException{
+		HttpSession session = req.getSession(); // grab our session info
+		PrintWriter writer = rsp.getWriter();
+		
+		if(session.getAttribute("userName") != null) {
+			rsp.setStatus(200); // Successful logout. 'OK'
+			writer.println("You have been logged out successfully.");
+			return;
+		} 
+		
+		rsp.setStatus(400); // Bad request
+		writer.println("You aren't logged in, can't log out!");
+	}
 }
