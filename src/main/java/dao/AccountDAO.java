@@ -23,21 +23,30 @@ public class AccountDAO implements IAccountDAO{
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the Account object for neat SQL implementation
-			int accountID = a.getAccountId();
 			double balance = a.getBalance();
 			AccountStatus as = a.getStatus();
 			AccountType at = a.getType();
 			
 			// The below updates all fields
-			String sql = "INSERT INTO ACCOUNTS (id,balance,status_id,type_id) VALUES (?, ?, ?, ?)";
+			String sql = "INSERT INTO ACCOUNTS (balance,status_id,type_id) VALUES (?, ?, ?)";
 			
 			PreparedStatement stmnt = conn.prepareStatement(sql);
-			stmnt.setInt(1, accountID);
-			stmnt.setDouble(2, balance);
-			stmnt.setString(3, as.getStatus());
-			stmnt.setString(4, at.getType());
+			stmnt.setDouble(1, balance);
+			stmnt.setInt(2, as.getStatusId());
+			stmnt.setInt(3, at.getTypeId());
 			
 			result = stmnt.executeUpdate();
+			
+			sql = "SELECT ISEQ$$_20534.CURRVAL FROM DUAL"; //This gets the auto-generated ID we just used for our new account
+			stmnt = conn.prepareStatement(sql);
+			
+			ResultSet rs = stmnt.executeQuery();
+			
+			while(rs.next()) {
+				int id = rs.getInt(1); // Grabs the value from the first column
+				a.setAccountId(id);  // Now that we know the Value, we can access our new ID and assign it to our account.
+			}
+			
 		} catch(SQLException e) {
 			e.printStackTrace();
 			return result; // If something goes wrong, return 0 for '0 changed rows'.
@@ -118,9 +127,32 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
-	public int update(AbstractAccount u) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int update(AbstractAccount a) {
+		// Update the various fields of an account record matching the given ID
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// The below 'unpacks' all the information in the Account object for neat SQL implementation
+			int accountId = a.getAccountId();
+			double balance = a.getBalance();
+			int statusId = a.getStatus().getStatusId();
+			int typeId = a.getType().getTypeId();
+			
+			// The below updates all fields
+			String sql = "UPDATE ACCOUNTS SET "
+					+ "BALANCE = ?, STATUS_ID = ?, TYPE_ID = ? WHERE ID = ?"; 
+			
+			PreparedStatement stmnt = conn.prepareStatement(sql); //Insert values into statement
+			stmnt.setDouble(1, balance);
+			stmnt.setInt(2, statusId);
+			stmnt.setInt(3, typeId);
+			stmnt.setInt(4, accountId);
+			
+			result = stmnt.executeUpdate();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 	@Override
