@@ -1,13 +1,11 @@
 package web;
 
 import java.io.IOException;
-import java.io.PrintWriter;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -27,36 +25,30 @@ public class FrontController extends HttpServlet {
 	protected void doGet(HttpServletRequest req, HttpServletResponse rsp)
 		throws ServletException, IOException{
 			
-		String URI = req.getRequestURI().replace("/rocp-project", ""); //Determine where the 'get' is coming from. Removes leading 	project name
-		String id = null;
-		if(URI.contains("/users/\\d+")) { // If formated ass /user/digit
-			id = URI.substring(6);
-		}
+		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
+		String[] portions = URI.split("/");
 		
 		try {
-			switch(URI) {
+			switch(portions[0]) {
 			
-			case "/":
+			case "":
 				rsp.setStatus(200); // Unable to be found
 				rsp.getWriter().println("hi");
 				if(req.getSession().getAttribute("currentUser") != null) break; //If the user isn't logged in, get the login page
 				
-			case "/login":
+			case "login":
 				lc.doGet(req, rsp);
 				break;
 				
-			case "/logout":
+			case "logout":
 				lc.logout(req, rsp);
 				break;
 				
-			case "/user":
-				uc.accessUser(req,rsp,id);
+			case "user":
+				uc.accessUser(req,rsp,portions[1]);
 				break;
 				
 			default: 
-				if(id != null) {
-					uc.accessUser(req, rsp, id);
-				}
 				rsp.setStatus(404); // Unable to be found
 				rsp.getWriter().println("URI does not exist");
 			}
@@ -73,15 +65,16 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse rsp)
 			throws ServletException, IOException{
-
-		final String URI = req.getRequestURI(); //Determine where the 'get' is coming from
+		
+		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
+		String[] portions = URI.split("/");
 		
 		try {
-			switch(URI) {
-			case "/login":
+			switch(portions[0]) {
+			case "login":
 				lc.doPost(req, rsp, om);
 				break;
-			case "/user":
+			case "user":
 				// code code code for user.doGet
 				break;
 			}
