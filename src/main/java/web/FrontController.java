@@ -12,6 +12,7 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 
 import controllers.LoginController;
 import controllers.UserController;
+import exceptions.FailedStatementException;
 import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
 import models.AbstractUser;
@@ -26,6 +27,7 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse rsp)
 		throws ServletException, IOException{
+		rsp.setContentType("application/json");
 			
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
@@ -75,6 +77,7 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse rsp)
 			throws ServletException, IOException{
+		rsp.setContentType("application/json");
 		
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
@@ -100,5 +103,40 @@ public class FrontController extends HttpServlet {
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 
+	}
+	
+	@Override
+	protected void doPut(HttpServletRequest req, HttpServletResponse rsp) 
+			throws ServletException, IOException{
+		
+		rsp.setContentType("application/json");
+		
+		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
+		String[] portions = URI.split("/");
+		
+		try {
+			switch(portions[0]) {
+			case "user":
+				// code code code for user.doGet
+				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
+				AbstractUser user = uc.updateUser(req.getSession(),u);
+				rsp.getWriter().println(om.writeValueAsString(user)); // Returns the updated user if no exception thrown.
+				break;
+			}
+			
+		}catch (NotLoggedInException e) {
+			rsp.setStatus(401);
+			MessageTemplate message = new MessageTemplate("The incoming token has expired");
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (InvalidLoginException e) {
+			rsp.setStatus(400);
+			MessageTemplate message = new MessageTemplate("Invalid credentials");
+			rsp.getWriter().println(om.writeValueAsString(message));
+		} catch(FailedStatementException e) {
+			rsp.setStatus(400);
+			MessageTemplate message = new MessageTemplate("Invalid request");
+			rsp.getWriter().println(om.writeValueAsString(message));
+		}
 	}
 }

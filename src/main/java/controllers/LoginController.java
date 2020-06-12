@@ -1,6 +1,6 @@
 package controllers;
 
-import java.io.BufferedReader;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 
@@ -45,23 +45,8 @@ public class LoginController {
 			writer.println("Logged in already");
 			return; // We are already logged in so no need to to it again.
 		}
-		
-		BufferedReader reader = req.getReader(); // The reader takes info from the 'req'
-		
-		
-		//The below is just an alternate way to utilize om.readValue(), instead of passing 'reader' we pass 'body'
-		StringBuilder sb = new StringBuilder(); // And we will use the StringBuilder to transform the reader into a response we can use
-		
-		String line;
-		
-		while( (line = reader.readLine()) != null) { // First stores the nextLine into our line variable, and then compares if it's null
-			sb.append(line); //Add the line to SB
-		}
-		
-		String body = sb.toString(); // For the case of our login we get the username:usernameValue,password:passValue as the syntax.
-		
-		
-		LoginTemplate lt = om.readValue(body, LoginTemplate.class);
+			
+		LoginTemplate lt = om.readValue(req.getReader(), LoginTemplate.class);
 
 		//LoginTemplate lt = om.readValue(reader,LoginTemplate.class);
 		AbstractUser u = us.login(lt); // store credentials in the thing.

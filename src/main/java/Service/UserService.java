@@ -5,6 +5,7 @@ import models.*;
 import templates.LoginTemplate;
 import dao.AbstractUserDAO;
 import dao.IAbstractUserDAO;
+import exceptions.FailedStatementException;
 import exceptions.InvalidLoginException;
 
 public class UserService {
@@ -50,6 +51,14 @@ public class UserService {
 		} 		
 		System.out.println("No match");
 		return u;
+	}
+	
+	public AbstractUser update(AbstractUser u) {
+		int result = uDAO.update(u);
+		if(result != 1) {
+			throw new FailedStatementException();
+		}
+		return uDAO.findByID(u.getUserId()); // Returns appropriate record to verify update
 	}
 	
 	public boolean withdraw(AbstractAccount acc, int amount) {
