@@ -5,9 +5,13 @@ import models.*;
 import templates.LoginTemplate;
 import dao.AbstractUserDAO;
 import dao.IAbstractUserDAO;
+import exceptions.InvalidLoginException;
+import exceptions.NotLoggedInException;
 
 public class UserService {
 	private static IAbstractUserDAO uDAO = new AbstractUserDAO();
+	public static final int EMPLOYEE_ROLE = 3; // Here to check if current user is Employee/admin or not. Put as variable for easy access and repeated use 
+
 	
 	public int insert(AbstractUser u) {
 		int result = uDAO.insert(u); // determine if passed or not.
@@ -19,16 +23,13 @@ public class UserService {
 	}
 	
 	public List<AbstractUser> findAll(User currentUser){ // Pass in current user-list
-		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
-			return null; // They shouldn't have access
+		if(currentUser.getRole().getRoleId() < EMPLOYEE_ROLE) { // If a standard / premium user
+			throw new NotLoggedInException(); // They shouldn't have access
 		}
 		return uDAO.findAll(); // No other logic needed 
 	}
 	
 	public AbstractUser findByID(int id) {
-//		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
-//			return null; // They shouldn't have access
-//		}
 		if(id<1) {
 			throw new IllegalArgumentException(); // Id goes from 1 to above, anything else is an error.
 		}
@@ -36,9 +37,6 @@ public class UserService {
 	}
 	
 	public AbstractUser findByUsername(String uname) {
-//		if(currentUser.getRole().getRoleId() < 3) { // If a standard / premium user
-//			return null; // They shouldn't have access
-//		}  // Currently not implemented
 		if(uname.contains("\n") || uname.equals("")) { //If blank string or having a newline character
 			throw new IllegalArgumentException(); // Not a valid username
 		}
@@ -48,19 +46,16 @@ public class UserService {
 	public AbstractUser login(LoginTemplate lt) {
 		// Used to check if credentials match a user in the Database and return 1 for successful login? Not sure how to start a session yet
 		// Might just return a User object so the application can track their Role and ID
-		AbstractUser u = null;
-		System.out.println(lt.getUsername());
-		System.out.println(lt.getPassword());
-		if(uDAO.checkPassword(lt.getUsername(), lt.getPassword()) == true) {
-			return this.findByUsername(lt.getUsername());
+		AbstractUser u = this.findByUsername(lt.getUsername());
+		if(u == null) {
+			throw new InvalidLoginException();
+		}
+		
+		if(u.getPassword().equals(lt.getPassword())) {
+			return u;
 		} 		
 		System.out.println("No match");
 		return u;
-	}
-	
-	public int logout(int loginStatus) {
-		// If the user is logged in, allow them to log back out and set the current user to 'guest' or whatever to remove access
-		return 0;
 	}
 	
 	public boolean withdraw(AbstractAccount acc, int amount) {

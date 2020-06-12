@@ -9,7 +9,6 @@ public interface IAbstractUserDAO {
 	public List<AbstractUser> findAll(); // Read operation
 	public AbstractUser findByID(int id); // Read operation
 	public AbstractUser findByUsername(String AbstractUsername);
-	public boolean checkPassword(String user, String pass);
 	public AbstractUser findByEmail(String email);
 	public int update(AbstractUser u); // Update operation
 	public int delete(int id); // Delete operation

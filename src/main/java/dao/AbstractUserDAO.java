@@ -231,36 +231,4 @@ public class AbstractUserDAO implements IAbstractUserDAO {
 		return result;
 	}
 
-	@Override
-	public boolean checkPassword(String user, String pass) {
-		boolean result = false;
-		if(this.findByUsername(user) == null) { // If the 'find by user' yields no result then no need to continue.
-			System.out.println("User not found.");
-			return result;
-		}
-		System.out.println("Ok we did see: " + user);
-		try (Connection conn = ConnectionUtil.getConnection()) {
-
-			String sql = "SELECT PASSWORD FROM USERS WHERE USERNAME = ?";
-
-			PreparedStatement stmnt = conn.prepareStatement(sql);
-			stmnt.setString(1, user); // Defines the WHERE USERNAME = ?
-
-			ResultSet rs = stmnt.executeQuery(); // grabs result set of the query
-
-			while(rs.next()) { // While there are results:
-				String password = rs.getString("PASSWORD"); // grab pass
-				System.out.println("The passwords, the one there is: " + password + " / and the one we entered is: " + pass);
-				if(password.equals(pass)) {
-					System.out.println("It do match");
-					result = true;
-				}  // If the passwords match, 
-			}
-		} catch(SQLException e) {
-			e.printStackTrace();
-			return result; // If something goes wrong, return 0 for '0 changed rows'.
-		}
-		return result;
-	}
-
 }

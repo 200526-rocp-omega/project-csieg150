@@ -4,13 +4,11 @@ import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
 import models.AbstractAccount;
 import models.AbstractUser;
-import models.Role;
 import models.UserAccount;
 import util.ConnectionUtil;
 
@@ -42,6 +40,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 
 	@Override
 	public List<UserAccount> findAccountsByUser(AbstractUser u) {
+		// Gets a list of all accounts associated with the user
 		List<UserAccount> accountsByUser = new ArrayList<>();
 		int userId = u.getUserId();
 
@@ -71,6 +70,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 
 	@Override
 	public List<UserAccount> findUsersByAccount(AbstractAccount a) {
+		// Get all users associated with an account id
 		List<UserAccount> usersByAccount = new ArrayList<>();
 		int accountId = a.getAccountId();
 
@@ -128,14 +128,46 @@ public class UserAccountDAO implements IUserAccountDAO {
 
 	@Override
 	public int deleteByUser(AbstractUser u) {
-		// TODO Auto-generated method stub
-		return 0;
+		// Adds a user/account pair of IDs into our table. 
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// The below 'unpacks' all the information in the user object for neat SQL implementation
+			int userId = u.getUserId();
+
+			// The below updates all fields
+			String sql = "DELETE FROM USERS_ACCOUNTS WHERE USER_ID = ?";
+
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setInt(1, userId);
+
+			result = stmnt.executeUpdate(); // Run the delete statement
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 	@Override
 	public int deleteByAccount(AbstractAccount a) {
-		// TODO Auto-generated method stub
-		return 0;
+		// Removes records that contain the appropriate account ID 
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// The below 'unpacks' all the information in the user object for neat SQL implementation
+			int accountId = a.getAccountId();
+
+			// The below updates all fields
+			String sql = "DELETE FROM USERS_ACCOUNTS WHERE ACCOUNT_ID = ?";
+
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setInt(1, accountId);
+
+			result = stmnt.executeUpdate(); // Run the delete statement
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 }
