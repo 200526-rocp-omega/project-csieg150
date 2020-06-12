@@ -154,6 +154,27 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
+	public int updateBalance(int id, double balance) {
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			// The below 'unpacks' all the information in the Account object for neat SQL implementation
+			
+			// The below updates all fields
+			String sql = "UPDATE ACCOUNTS SET BALANCE = ? WHERE ID = ?"; 
+			
+			PreparedStatement stmnt = conn.prepareStatement(sql); //Insert values into statement
+			stmnt.setDouble(1, balance);
+			stmnt.setInt(2, id);
+			
+			result = stmnt.executeUpdate();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
+	}
+	
+	@Override
 	public int delete(int accountId) {
 		// Delete the Account row that matches the given id
 		int result = 0;
@@ -172,5 +193,7 @@ public class AccountDAO implements IAccountDAO{
 		}
 		return result;
 	}
+
+	
 
 }

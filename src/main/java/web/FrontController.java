@@ -10,11 +10,13 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import controllers.AccountController;
 import controllers.LoginController;
 import controllers.UserController;
 import exceptions.FailedStatementException;
 import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
+import models.AbstractAccount;
 import models.AbstractUser;
 import templates.MessageTemplate;
 
@@ -23,6 +25,7 @@ public class FrontController extends HttpServlet {
 	private static final ObjectMapper om = new ObjectMapper(); // Helps convert JSON to a usable object.
 	private static final UserController uc = new UserController();
 	private static final LoginController lc = new LoginController();
+	private static final AccountController ac = new AccountController();
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse rsp)
@@ -61,11 +64,35 @@ public class FrontController extends HttpServlet {
 				break;
 			
 			case "accounts":
-				if(portions.length==2) { // If the 
-					
+				if(portions.length==2) { // If the URI is just 'accounts'
+					List<AbstractAccount> accounts = ac.findAll(req.getSession()); // Get all accounts
+					rsp.getWriter().println(om.writeValueAsString(accounts));
+					break;
 				}
 				switch(portions[1]) {
-				case 
+				case "status":
+					//TODO
+					break;
+					
+				case "owner":
+
+					//TODO
+					break;
+					
+				case "withdraw":
+					//TODO
+					
+					break;
+					
+				case "deposit":
+					//TODO
+					
+					break;
+				
+				case "transfer":
+					//TODO
+					
+					break;
 				}
 				break;
 				
