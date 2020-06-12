@@ -12,6 +12,7 @@ import javax.servlet.http.HttpSession;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 import Service.UserService;
+import exceptions.InvalidLoginException;
 import models.AbstractUser;
 import templates.LoginTemplate;
 
@@ -72,8 +73,7 @@ public class LoginController {
 			session.setAttribute("currentUser", u); // applies the 'credentials' to the session so we can see who it is in other requests 
 		} else {
 			// Unsuccessful login attempt
-			rsp.setStatus(400);
-			writer.println("Username or password incorrect");
+			throw new InvalidLoginException();
 		}
 	}
 	

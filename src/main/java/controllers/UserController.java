@@ -9,39 +9,27 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 
 import Service.UserService;
+import exceptions.NotLoggedInException;
 import models.AbstractUser;
 
 public class UserController {
 private UserService us = new UserService(); // Lets us access User Service methods 
+public static final int EMPLOYEE_ROLE = 3; // Here to check if current user is Employee/admin or not. Put as variable for easy access and repeated use 
 	
-	public void accessUser(HttpServletRequest req, HttpServletResponse rsp) 
+	public void accessUser(HttpServletRequest req, HttpServletResponse rsp, String id) 
 			throws ServletException, IOException{ // Fetched when the page is loaded normally
 
 		HttpSession session = req.getSession(); // Creates a session 
-		PrintWriter writer = rsp.getWriter();
 		AbstractUser currentUser = (AbstractUser) session.getAttribute("currentUser"); // Stored as 'AbstractUser' so casting should be ok.
 		
 		if(currentUser == null) {
-			rsp.setStatus(401); //Unauthorized Status code
-			writer.println("You need to log in");
-			return;
+			throw new NotLoggedInException();
 		}
 		
-		String uri = req.getRequestURI(); // This grabs the individual URI entered at the time of the GET method in the form of /users/*
-		String[] uriParts = uri.split("/");
+		int userId = Integer.getInteger(id); // Gets the integer value of the 2nd part of the URI
 		
-		if(uriParts.length != 2) {
-			rsp.setStatus(400); // Bad request
-			writer.println("Bad URI request, needs to be in the format of /users/{id}");
-			return;
-		}
-		
-		int userId = Integer.getInteger(uriParts[1]); // Gets the integer value of the 2nd part of the URI
-		
-		if((userId != currentUser.getUserId()) && (currentUser.getRole().getRoleId() < 3)) {
-			rsp.setStatus(401); //Unauthorized Status code
-			writer.println("You may not access other people's accounts.");
-			return;
+		if((userId != currentUser.getUserId()) && (currentUser.getRole().getRoleId() < EMPLOYEE_ROLE)) {
+			throw new NotLoggedInException();
 		}
 		
 		AbstractUser result = us.findByID(userId);
