@@ -1,6 +1,7 @@
 package web;
 
 import java.io.IOException;
+import java.util.List;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -13,6 +14,7 @@ import controllers.LoginController;
 import controllers.UserController;
 import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
+import models.AbstractUser;
 import templates.MessageTemplate;
 
 @SuppressWarnings("serial")
@@ -32,9 +34,9 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 			
 			case "":
-				rsp.setStatus(200); // Unable to be found
-				rsp.getWriter().println("hi");
-				if(req.getSession().getAttribute("currentUser") != null) break; //If the user isn't logged in, get the login page
+				rsp.setStatus(200);
+				rsp.getWriter().println("hi how's it goin");
+				break;				
 				
 			case "login":
 				lc.doGet(req, rsp);
@@ -44,8 +46,16 @@ public class FrontController extends HttpServlet {
 				lc.logout(req, rsp);
 				break;
 				
-			case "user":
-				uc.accessUser(req,rsp,portions[1]);
+			case "users":
+				if(portions.length > 1) {
+					AbstractUser u = uc.accessUser(req.getSession(),portions[1]);
+					rsp.setStatus(200);
+					rsp.getWriter().println(om.writeValueAsString(u));
+				} else {
+					//TODO If not accessing a specific user, allow Employee or Admin to see list of all users.
+					List<AbstractUser> users = uc.findAll(req.getSession());
+					rsp.getWriter().println(om.writeValueAsString(users));
+				}
 				break;
 				
 			default: 

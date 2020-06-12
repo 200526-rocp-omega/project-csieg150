@@ -6,12 +6,9 @@ import templates.LoginTemplate;
 import dao.AbstractUserDAO;
 import dao.IAbstractUserDAO;
 import exceptions.InvalidLoginException;
-import exceptions.NotLoggedInException;
 
 public class UserService {
 	private static IAbstractUserDAO uDAO = new AbstractUserDAO();
-	public static final int EMPLOYEE_ROLE = 3; // Here to check if current user is Employee/admin or not. Put as variable for easy access and repeated use 
-
 	
 	public int insert(AbstractUser u) {
 		int result = uDAO.insert(u); // determine if passed or not.
@@ -22,10 +19,7 @@ public class UserService {
 		return result;
 	}
 	
-	public List<AbstractUser> findAll(User currentUser){ // Pass in current user-list
-		if(currentUser.getRole().getRoleId() < EMPLOYEE_ROLE) { // If a standard / premium user
-			throw new NotLoggedInException(); // They shouldn't have access
-		}
+	public List<AbstractUser> findAll(){ // Pass in current user-list
 		return uDAO.findAll(); // No other logic needed 
 	}
 	

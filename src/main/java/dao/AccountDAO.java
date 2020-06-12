@@ -9,10 +9,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 import models.AbstractAccount;
-import models.AbstractUser;
 import models.AccountStatus;
 import models.AccountType;
-import models.Role;
 import models.StandardAccount;	
 import util.ConnectionUtil;
 
@@ -156,9 +154,23 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
-	public int delete(int id) {
-		// TODO Auto-generated method stub
-		return 0;
+	public int delete(int accountId) {
+		// Delete the Account row that matches the given id
+		int result = 0;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			
+			// The below updates all fields
+			String sql = "DELETE FROM ACCOUNTS WHERE ID = ?"; 
+			
+			PreparedStatement stmnt = conn.prepareStatement(sql); //Insert values into statement
+			stmnt.setInt(1, accountId);
+			
+			result = stmnt.executeUpdate();
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 }
