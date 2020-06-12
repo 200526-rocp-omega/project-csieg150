@@ -2,12 +2,12 @@ package dao;
 
 import java.util.List;
 
-import models.StandardAccount;
+import models.AbstractAccount;
 
 public interface IAccountDAO {
-	public int insert(StandardAccount a); // Create operation
-	public List<StandardAccount> findAll(); // Read operation
-	public StandardAccount findByID(int id); // Read operation
-	public int update(StandardAccount u); // Update operation
+	public int insert(AbstractAccount a); // Create operation
+	public List<AbstractAccount> findAll(); // Read operation
+	public AbstractAccount findByID(int id); // Read operation
+	public int update(AbstractAccount u); // Update operation
 	public int delete(int id); // Delete operation
 }

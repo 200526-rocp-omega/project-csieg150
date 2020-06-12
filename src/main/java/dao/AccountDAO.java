@@ -8,15 +8,18 @@ import java.sql.Statement;
 import java.util.ArrayList;
 import java.util.List;
 
+import models.AbstractAccount;
+import models.AbstractUser;
 import models.AccountStatus;
 import models.AccountType;
+import models.Role;
 import models.StandardAccount;	
 import util.ConnectionUtil;
 
 public class AccountDAO implements IAccountDAO{
 
 	@Override
-	public int insert(StandardAccount a) {
+	public int insert(AbstractAccount a) {
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the Account object for neat SQL implementation
@@ -43,8 +46,8 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
-	public List<StandardAccount> findAll() {
-		List<StandardAccount> allAccounts = new ArrayList<>();
+	public List<AbstractAccount> findAll() {
+		List<AbstractAccount> allAccounts = new ArrayList<>();
 		
 		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
 			//Allows us to instantiate some variable, and at the end of try it will auto-close 
@@ -69,26 +72,53 @@ public class AccountDAO implements IAccountDAO{
 				
 				AccountStatus as = new AccountStatus(asID,asStatus);
 				AccountType at = new AccountType(atID, atType);
-				StandardAccount a = new StandardAccount(id,balance,as,at);
+				AbstractAccount a = new StandardAccount(id,balance,as,at);
 				
 				allAccounts.add(a); // add User object to the list
 			}
 			
 		} catch(SQLException e) {
 			e.printStackTrace();
-			return new ArrayList<StandardAccount>(); // If something goes wrong, return an empty list.
+			return new ArrayList<AbstractAccount>(); // If something goes wrong, return an empty list.
 		}
 		return allAccounts;
 	}
 
 	@Override
-	public StandardAccount findByID(int id) {
-		// TODO Auto-generated method stub
-		return null;
+	public AbstractAccount findByID(int id) {
+		AbstractAccount result = null;
+		try (Connection conn = ConnectionUtil.getConnection()) {
+			
+			String sql = "SELECT * FROM ACCOUNTS "
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id";
+			
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setInt(1, id); // Defines the WHERE ID = ?
+			
+			ResultSet rs = stmnt.executeQuery(); // grabs result set of the query
+			
+			while(rs.next()) { // While there are results:
+				int accountId = rs.getInt("ACCOUNTS.id");
+				double balance = rs.getDouble("ACCOUNTS.balance");
+				int statusId = rs.getInt("ACCOUNT_STATUS.id");
+				String statusName = rs.getString("ACCOUNT_STATUS.status");
+				int typeId = rs.getInt("ACCOUNT_TYPE.id");
+				String typeName = rs.getString("ACCOUNT_TYPE.type");
+				
+				AccountStatus as = new AccountStatus(statusId,statusName);
+				AccountType at = new AccountType(typeId,typeName);
+				result = new StandardAccount(accountId,balance,as,at);
+			}
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return result; // If something goes wrong, return 0 for '0 changed rows'.
+		}
+		return result;
 	}
 
 	@Override
-	public int update(StandardAccount u) {
+	public int update(AbstractAccount u) {
 		// TODO Auto-generated method stub
 		return 0;
 	}
