@@ -59,6 +59,15 @@ public class FrontController extends HttpServlet {
 					rsp.getWriter().println(om.writeValueAsString(users));
 				}
 				break;
+			
+			case "accounts":
+				if(portions.length==2) { // If the 
+					
+				}
+				switch(portions[1]) {
+				case 
+				}
+				break;
 				
 			default: 
 				rsp.setStatus(404); // Unable to be found
