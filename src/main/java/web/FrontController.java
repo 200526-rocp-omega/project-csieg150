@@ -10,9 +10,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
+import authorization.AuthService;
 import controllers.AccountController;
 import controllers.LoginController;
 import controllers.UserController;
+import exceptions.AuthorizationException;
 import exceptions.FailedStatementException;
 import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
@@ -26,6 +28,7 @@ public class FrontController extends HttpServlet {
 	private static final UserController uc = new UserController();
 	private static final LoginController lc = new LoginController();
 	private static final AccountController ac = new AccountController();
+	private static final AuthService as = new AuthService();
 	
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse rsp)
@@ -53,12 +56,20 @@ public class FrontController extends HttpServlet {
 				
 			case "users":
 				if(portions.length > 1) {
-					AbstractUser u = uc.accessUser(req.getSession(),portions[1]);
+					int userId = -99; // Dummy value to make sure the try block works.
+					try {
+						userId = Integer.parseInt(portions[1]);
+					} catch (NumberFormatException e) {
+						throw new FailedStatementException();
+					}
+					as.guard(req.getSession(false), userId, "Employee", "Admin");
+					AbstractUser u = uc.accessUser(userId);
 					rsp.setStatus(200);
 					rsp.getWriter().println(om.writeValueAsString(u));
 				} else {
-					//TODO If not accessing a specific user, allow Employee or Admin to see list of all users.
-					List<AbstractUser> users = uc.findAll(req.getSession());
+					// If not accessing a specific user, allow Employee or Admin to see list of all users.
+					as.guard(req.getSession(false), "Employee", "Admin");
+					List<AbstractUser> users = uc.findAll();
 					rsp.getWriter().println(om.writeValueAsString(users));
 				}
 				break;
@@ -155,23 +166,31 @@ public class FrontController extends HttpServlet {
 			case "user":
 				// code code code for user.doGet
 				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
-				AbstractUser user = uc.updateUser(req.getSession(),u);
+				
+				as.guard(req.getSession(false), u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin
+				AbstractUser user = uc.updateUser(u);
 				rsp.getWriter().println(om.writeValueAsString(user)); // Returns the updated user if no exception thrown.
 				break;
 			}
 			
-		}catch (NotLoggedInException e) {
+		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
 			MessageTemplate message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
-		} catch (InvalidLoginException e) {
+		} catch (InvalidLoginException e) { // If they put in bad credentials
 			rsp.setStatus(400);
 			MessageTemplate message = new MessageTemplate("Invalid credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
-		} catch(FailedStatementException e) {
+			
+		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
 			MessageTemplate message = new MessageTemplate("Invalid request");
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
+			rsp.setStatus(401);
+			MessageTemplate message = new MessageTemplate("You are not authorized");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 	}
