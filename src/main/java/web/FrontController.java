@@ -75,39 +75,27 @@ public class FrontController extends HttpServlet {
 				break;
 			
 			case "accounts":
-				if(portions.length==2) { // If the URI is just 'accounts'
+				if(portions.length==1) { // If the URI is just 'accounts'
+					as.guard(req.getSession(false), "Employee", "Admin"); // Checks if employee or admin
 					List<AbstractAccount> accounts = ac.findAll(req.getSession()); // Get all accounts
 					rsp.getWriter().println(om.writeValueAsString(accounts));
 					break;
 				}
 				switch(portions[1]) {
-				case "status":
-					//TODO
+				case "status": 
+					//TODO Find all accounts with a specific 'statusId' in portions[2]
 					break;
 					
 				case "owner":
-
-					//TODO
-					break;
-					
-				case "withdraw":
-					//TODO
-					
-					break;
-					
-				case "deposit":
-					//TODO
-					
-					break;
-				
-				case "transfer":
-					//TODO
-					
+					//TODO Find all accounts related to a specific 'ownerId' in portions[2]
 					break;
 				}
 				break;
 				
 			default: 
+				if(portions.length == 2) {
+					//TODO We will assume they're trying to get the account with a specified ID
+				}
 				rsp.setStatus(404); // Unable to be found
 				rsp.getWriter().println("URI does not exist");
 			}
@@ -155,8 +143,34 @@ public class FrontController extends HttpServlet {
 				//TODO insert into the user table and return the stuff.
 				break;
 			
-			case "account":
+			case "accounts":
 				//TODO take in account information as well as the 'main' userId
+				if(portions.length == 1) {
+					return;
+				}
+				switch(portions[1]) {
+
+				
+				case "withdraw":
+					//TODO
+					
+					break;
+					
+				case "deposit":
+					//TODO
+					
+					break;
+				
+				case "transfer":
+					//TODO
+					
+					break;
+				
+				case "passTime":
+					//TODO
+					
+					break;
+				}
 				break;
 			}
 			
@@ -187,7 +201,7 @@ public class FrontController extends HttpServlet {
 	protected void doPut(HttpServletRequest req, HttpServletResponse rsp) 
 			throws ServletException, IOException{
 		
-		rsp.setContentType("application/json");
+		rsp.setContentType("application/json"); //Formats our output in responses to be JSON
 		
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
