@@ -111,10 +111,25 @@ public class FrontController extends HttpServlet {
 				rsp.setStatus(404); // Unable to be found
 				rsp.getWriter().println("URI does not exist");
 			}
-		} catch(NotLoggedInException e) {
+		} catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
 			MessageTemplate message = new MessageTemplate("The incoming token has expired");
-			rsp.getWriter().println(message);
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (InvalidLoginException e) { // If they put in bad credentials
+			rsp.setStatus(400);
+			MessageTemplate message = new MessageTemplate("Invalid credentials");
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
+			rsp.setStatus(400);
+			MessageTemplate message = new MessageTemplate("Invalid request");
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
+			rsp.setStatus(401);
+			MessageTemplate message = new MessageTemplate("You are not authorized");
+			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 		
 		
@@ -131,22 +146,38 @@ public class FrontController extends HttpServlet {
 		
 		try {
 			switch(portions[0]) {
+			
 			case "login":
 				lc.doPost(req, rsp, om);
 				break;
+				
 			case "user":
-				// code code code for user.doGet
+				//TODO insert into the user table and return the stuff.
+				break;
+			
+			case "account":
+				//TODO take in account information as well as the 'main' userId
 				break;
 			}
 			
-		}catch (NotLoggedInException e) {
+		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
 			MessageTemplate message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
-		} catch (InvalidLoginException e) {
+		} catch (InvalidLoginException e) { // If they put in bad credentials
 			rsp.setStatus(400);
 			MessageTemplate message = new MessageTemplate("Invalid credentials");
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
+			rsp.setStatus(400);
+			MessageTemplate message = new MessageTemplate("Invalid request");
+			rsp.getWriter().println(om.writeValueAsString(message));
+			
+		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
+			rsp.setStatus(401);
+			MessageTemplate message = new MessageTemplate("You are not authorized");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 
