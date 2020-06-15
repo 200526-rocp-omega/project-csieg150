@@ -3,11 +3,14 @@ package Service;
 import java.util.List;
 
 import dao.AccountDAO;
+import dao.UserAccountDAO;
 import exceptions.FailedStatementException;
 import models.AbstractAccount;
+import models.UserAccount;
 
 public class AccountService {
 private static AccountDAO aDAO = new AccountDAO();
+private static UserAccountDAO uaDAO = new UserAccountDAO();
 	
 	public int insert(AbstractAccount u) {
 		return aDAO.insert(u);
@@ -56,5 +59,21 @@ private static AccountDAO aDAO = new AccountDAO();
 		aDAO.updateBalance(accountId, (accountFunds + amount));
 	
 		return aDAO.findByID(accountId);
+	}
+	
+	public List<UserAccount> ownersOfAccount(int accountId) {
+		// Finds the account associated with the ID, then finds all users related to it
+		return uaDAO.findUsersByAccount(this.findByID(accountId)); 
+	}
+	
+	public boolean userIsOwner(int userId, int accountId) {
+		// Grabs the list of associated users and then checks if the given userId is in that list.
+		List<UserAccount> usersList = this.ownersOfAccount(accountId); 
+		for(UserAccount userAccount : usersList) { // For each found result
+			if(userAccount.getUserId() == userId) { // compare if the userIds match
+				return true; // If so return true
+			}
+		}
+		return false; // If no match is found, return false.
 	}
 }

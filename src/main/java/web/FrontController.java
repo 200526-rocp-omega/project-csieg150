@@ -7,6 +7,7 @@ import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpSession;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 
@@ -33,10 +34,12 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest req, HttpServletResponse rsp)
 		throws ServletException, IOException{
+		
 		rsp.setContentType("application/json");
 			
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
+		HttpSession session = req.getSession();
 		
 		try {
 			switch(portions[0]) {
@@ -62,13 +65,13 @@ public class FrontController extends HttpServlet {
 					} catch (NumberFormatException e) {
 						throw new FailedStatementException();
 					}
-					as.guard(req.getSession(false), userId, "Employee", "Admin");
+					as.guard(session, userId, "Employee", "Admin");
 					AbstractUser u = uc.accessUser(userId);
 					rsp.setStatus(200);
 					rsp.getWriter().println(om.writeValueAsString(u));
 				} else {
 					// If not accessing a specific user, allow Employee or Admin to see list of all users.
-					as.guard(req.getSession(false), "Employee", "Admin");
+					as.guard(session, "Employee", "Admin");
 					List<AbstractUser> users = uc.findAll();
 					rsp.getWriter().println(om.writeValueAsString(users));
 				}
@@ -76,8 +79,8 @@ public class FrontController extends HttpServlet {
 			
 			case "accounts":
 				if(portions.length==1) { // If the URI is just 'accounts'
-					as.guard(req.getSession(false), "Employee", "Admin"); // Checks if employee or admin
-					List<AbstractAccount> accounts = ac.findAll(req.getSession()); // Get all accounts
+					as.guard(session, "Employee", "Admin"); // Checks if employee or admin
+					List<AbstractAccount> accounts = ac.findAll(session); // Get all accounts
 					rsp.getWriter().println(om.writeValueAsString(accounts));
 					break;
 				}
@@ -89,6 +92,21 @@ public class FrontController extends HttpServlet {
 				case "owner":
 					//TODO Find all accounts related to a specific 'ownerId' in portions[2]
 					break;
+				default:
+					try {
+						int accountId = Integer.parseInt(portions[1]); // Parse our account ID
+						
+						if(!(ac.isOwner(session, accountId))) { // If our current user isn't a listed owner
+							as.guard(session, "Employee", "Admin"); // Check if they are employee or admin
+						}
+						// By passing through they're either an owner or an employee/admin
+						AbstractAccount account = ac.findAccountById(accountId); // Grab the account
+						rsp.getWriter().println(om.writeValueAsString(account)); // Print the value.
+					} catch(NumberFormatException e) {
+						rsp.setStatus(404);
+						MessageTemplate message = new MessageTemplate("This is not a valid resource");
+						rsp.getWriter().println(om.writeValueAsString(message));
+					}
 				}
 				break;
 				
@@ -127,10 +145,12 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse rsp)
 			throws ServletException, IOException{
+		
 		rsp.setContentType("application/json");
 		
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
+		HttpSession session = req.getSession();
 		
 		try {
 			switch(portions[0]) {
@@ -146,7 +166,8 @@ public class FrontController extends HttpServlet {
 			case "accounts":
 				//TODO take in account information as well as the 'main' userId
 				if(portions.length == 1) {
-					return;
+					as.guard(session, "Employee", "Admin"); // Check if Employee or admin
+					ac.findAll(session); //Access all account records.
 				}
 				switch(portions[1]) {
 
@@ -170,6 +191,9 @@ public class FrontController extends HttpServlet {
 					//TODO
 					
 					break;
+				
+				default:
+					
 				}
 				break;
 			}
@@ -208,8 +232,7 @@ public class FrontController extends HttpServlet {
 		
 		try {
 			switch(portions[0]) {
-			case "user":
-				// code code code for user.doGet
+			case "users":
 				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
 				
 				as.guard(req.getSession(false), u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin

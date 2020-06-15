@@ -48,7 +48,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 			//Allows us to instantiate some variable, and at the end of try it will auto-close 
 			//to prevent memory leaks, even if exception is thrown.
 
-			String sql = "SELECT ACCOUNT_ID FROM USERS_ACCOUNT WHERE USER_ID = ?"; // gets all accounts that are paired to the user ID 
+			String sql = "SELECT ACCOUNT_ID FROM USERS_ACCOUNTS WHERE USER_ID = ?"; // gets all accounts that are paired to the user ID 
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, userId); // Fetches the account ID to compare to.
@@ -78,7 +78,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 			//Allows us to instantiate some variable, and at the end of try it will auto-close 
 			//to prevent memory leaks, even if exception is thrown.
 
-			String sql = "SELECT USER_ID FROM USERS_ACCOUNT WHERE ACCOUNT_ID = ?"; // gets all users 
+			String sql = "SELECT USER_ID FROM USERS_ACCOUNTS WHERE ACCOUNT_ID = ?"; // gets all users 
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, accountId); // Fetches the account ID to compare to.
@@ -106,7 +106,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 			//Allows us to instantiate some variable, and at the end of try it will auto-close 
 			//to prevent memory leaks, even if exception is thrown.
 
-			String sql = "SELECT * FROM USERS_ACCOUNT"; // gets all users 
+			String sql = "SELECT * FROM USERS_ACCOUNTS"; // gets all users 
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 
