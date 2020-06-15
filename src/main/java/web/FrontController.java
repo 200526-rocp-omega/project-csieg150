@@ -151,11 +151,6 @@ public class FrontController extends HttpServlet {
 			MessageTemplate message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
-		} catch (InvalidLoginException e) { // If they put in bad credentials
-			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("Invalid credentials");
-			rsp.getWriter().println(om.writeValueAsString(message));
-			
 		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
 			MessageTemplate message = new MessageTemplate("Invalid request");

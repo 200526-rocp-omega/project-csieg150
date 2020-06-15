@@ -17,18 +17,18 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		return aDAO.insert(u);
 	}
 	
-	public List<AbstractAccount> findAll(){ // Pass the current account-list
+	public List<AbstractAccount> findAll(){ // Pass the current list of accounts
 		return aDAO.findAll(); // No other logic needed 
 	}
 	
-	public AbstractAccount findByID(int id) {
+	public AbstractAccount findByID(int id) { // Find the record with the appropriate ID
 		return aDAO.findByID(id);		
 	}
 	
-	public AbstractAccount update(AbstractAccount a) {
+	public AbstractAccount update(AbstractAccount a) { // Update the associated ID with the new record.
 		int result = aDAO.update(a);
-		if(result != 1) {
-			throw new FailedStatementException();
+		if(result != 1) { // If we updated more or less than 1 row something went wrong
+			throw new FailedStatementException(); // throw exception
 		}
 		return aDAO.findByID(a.getAccountId()); // Returns appropriate record to verify update
 	}
