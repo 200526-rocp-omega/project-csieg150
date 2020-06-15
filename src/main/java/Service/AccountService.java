@@ -104,4 +104,16 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		// Adds our pair to the USERS-ACCOUNTS table.
 		if(uaDAO.insert(userId, accountId) < 1) throw new FailedStatementException();
 	}
+	
+	public void passTime(int numOfMonths) {
+		int savingsId = 2; // This is here just so we know what '2' represents - the AccountType for savings
+		double interestRate = 0.005; // Monthly interest rate we control
+		List<AbstractAccount> accounts = aDAO.findByType(savingsId);
+		for(AbstractAccount account : accounts) { // For every savings account
+			for(int i = 0; i < numOfMonths; i++) {
+				account.setBalance(account.getBalance()+(account.getBalance()*interestRate)); //Gain compound interest per month
+			}
+			aDAO.updateBalance(account.getAccountId(), account.getBalance()); // Update the balance before moving to the next account 
+		}
+	}
 }

@@ -61,4 +61,9 @@ public class AccountController {
 		this.withdraw(new BalanceTemplate(transfer.getSourceAccountId(),transfer.getAmount()));
 		this.deposit(new BalanceTemplate(transfer.getTargetAccountId(),transfer.getAmount()));
 	}
+	
+	public void passTime(int numOfMonths) {
+		// Give all savings accounts "numOfMonths" amount of interest.
+		as.passTime(numOfMonths);
+	}
 }

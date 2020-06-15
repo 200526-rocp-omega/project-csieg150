@@ -24,6 +24,7 @@ import models.AbstractAccount;
 import models.AbstractUser;
 import templates.BalanceTemplate;
 import templates.MessageTemplate;
+import templates.PassTimeTemplate;
 import templates.PostAccountTemplate;
 import templates.TransferTemplate;
 
@@ -247,15 +248,21 @@ public class FrontController extends HttpServlet {
 					rsp.getWriter().println(om.writeValueAsString(message));
 					break;
 				
-				case "passTime":
-					//TODO
-					
-					break;
-				
 				default:
-					
+					rsp.setStatus(404);
+					message = new MessageTemplate("Resource not found");
+					rsp.getWriter().println(om.writeValueAsString(message));
 				}
 				break;
+				
+			case "passTime":
+				//TODO
+				as.guard(session, "Admin"); //Check if user is admin
+				PassTimeTemplate passTime =  om.readValue(req.getReader(),PassTimeTemplate.class); // Grab our template from the body
+				ac.passTime(passTime.getNumOfMonths()); //Pass the time by the specified number of months
+				
+				message = new MessageTemplate(passTime.getNumOfMonths() + " months of compound interest have been accrued on all Savings accounts");
+				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in

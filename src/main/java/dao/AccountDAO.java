@@ -236,6 +236,46 @@ public class AccountDAO implements IAccountDAO{
 		return allAccounts;
 	}
 
+	public List<AbstractAccount> findByType(int typeId){
+		
+		List<AbstractAccount> allAccounts = new ArrayList<>();
+		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
+			//Allows us to instantiate some variable, and at the end of try it will auto-close 
+			//to prevent memory leaks, even if exception is thrown.
+
+			String sql = "SELECT *"
+					+ "FROM ACCOUNTS"
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id"
+					+ "WHERE ACCOUNT_TYPE.id = ?"; // gets all accounts that match the specific account type ID
+
+			PreparedStatement stmnt = conn.prepareStatement(sql);
+			stmnt.setInt(1, typeId);
+			
+			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
+
+			while(rs.next()) { // For each entry in the result set
+				int id = rs.getInt("ACCOUNTS.ID"); // Grab the account id
+				double balance = rs.getDouble("ACCOUNTS.BALANCE");
+				int asID = rs.getInt("ACCOUNT_STATUS.ID");
+				String asStatus = rs.getString("ACCOUNT_STATUS.status");
+				int atID = rs.getInt("ACCOUNT_TYPE.ID");
+				String atType = rs.getString("ACCOUNT_TYPE.type");
+
+				AccountStatus as = new AccountStatus(asID,asStatus);
+				AccountType at = new AccountType(atID, atType);
+				AbstractAccount a = new StandardAccount(id,balance,as,at);
+
+				allAccounts.add(a); // add User object to the list
+			}
+
+		} catch(SQLException e) {
+			e.printStackTrace();
+			return new ArrayList<AbstractAccount>(); // If something goes wrong, return an empty list.
+		}
+		
+		return allAccounts;
+	}
 	
 
 }
