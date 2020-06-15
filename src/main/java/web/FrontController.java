@@ -17,6 +17,7 @@ import controllers.LoginController;
 import controllers.UserController;
 import exceptions.AuthorizationException;
 import exceptions.FailedStatementException;
+import exceptions.IllegalBalanceException;
 import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
 import models.AbstractAccount;
@@ -247,6 +248,10 @@ public class FrontController extends HttpServlet {
 		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
 			rsp.setStatus(401);
 			MessageTemplate message = new MessageTemplate("You are not authorized");
+			rsp.getWriter().println(om.writeValueAsString(message));
+		} catch (IllegalBalanceException e) {
+			rsp.setStatus(400);
+			MessageTemplate message = new MessageTemplate("The amount to withdraw and deposit must be greater than 0");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 
