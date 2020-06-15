@@ -15,14 +15,11 @@ import util.ConnectionUtil;
 public class UserAccountDAO implements IUserAccountDAO {
 
 	@Override
-	public int insert(AbstractUser u, AbstractAccount a) {
+	public int insert(int userId, int accountId) {
 		// Adds a user/account pair of IDs into our table. 
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the user object for neat SQL implementation
-			int userId = u.getUserId();
-			int accountId = a.getAccountId();
-			
 			// The below updates all fields
 			String sql = "INSERT INTO USERS_ACCOUNTS (USER_ID, ACCOUNT_ID) VALUES (?, ?)";
 			

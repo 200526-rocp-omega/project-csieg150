@@ -22,6 +22,7 @@ import exceptions.NotLoggedInException;
 import models.AbstractAccount;
 import models.AbstractUser;
 import templates.MessageTemplate;
+import templates.PostAccountTemplate;
 
 @SuppressWarnings("serial")
 public class FrontController extends HttpServlet {
@@ -110,7 +111,7 @@ public class FrontController extends HttpServlet {
 						
 						int userId = Integer.parseInt(portions[2]); // Check what user ID to get
 						as.guard(session, userId, "Employee", "Admin"); // Check if they have permission first
-						List<AbstractAccount> accounts = ac.findByStatus(userId); // grab the list of associated accounts
+						List<AbstractAccount> accounts = ac.findByOwner(userId); // grab the list of associated accounts
 						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
 						break;
 						
@@ -194,8 +195,15 @@ public class FrontController extends HttpServlet {
 			case "accounts":
 				//TODO take in account information as well as the 'main' userId
 				if(portions.length == 1) {
-					as.guard(session, "Employee", "Admin"); // Check if Employee or admin
 					
+					PostAccountTemplate postedAccount = om.readValue(req.getReader(), PostAccountTemplate.class); // Get values
+					int userId = postedAccount.getUserId(); // Find associated userID
+					as.guard(session, userId, "Employee", "Admin"); // Check if Employee or admin, or belongs to the user
+					if (uc.accessUser(userId) == null) throw new FailedStatementException(); // Extra check to make sure User exists
+					AbstractAccount account = ac.insert(postedAccount); // Insert our records
+					
+					rsp.setStatus(201); // 201 Created
+					rsp.getWriter().println(om.writeValueAsString(account)); // Return the entered value. 
 				}
 				switch(portions[1]) {
 
@@ -257,13 +265,14 @@ public class FrontController extends HttpServlet {
 		
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
+		HttpSession session = req.getSession();
 		
 		try {
 			switch(portions[0]) {
 			case "users":
 				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
 				
-				as.guard(req.getSession(false), u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin
+				as.guard(session, u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin
 				AbstractUser user = uc.updateUser(u);
 				rsp.getWriter().println(om.writeValueAsString(user)); // Returns the updated user if no exception thrown.
 				break;

@@ -1,5 +1,6 @@
 package Service;
 
+import java.util.ArrayList;
 import java.util.List;
 
 import dao.AccountDAO;
@@ -80,5 +81,26 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 	public List<AbstractAccount> findByStatus(int statusId){
 		// Find all accounts of a specified status ID
 		return aDAO.findByStatus(statusId);
+	}
+	
+	public List<AbstractAccount> findByOwner(int userId){
+		
+		List<UserAccount> userAccounts = uaDAO.findAccountsByUser(userId); // Grab the associated user/accounts
+		
+		if(userAccounts.isEmpty()) { // If the list is empty 
+			throw new FailedStatementException(); // Throw an exception
+		}
+		
+		List<AbstractAccount> accounts = new ArrayList<>(); // Make our empty List
+		for(UserAccount ua : userAccounts) { //For every user/account pair
+			accounts.add(this.findByID(ua.getAccountId())); // Find the associated Account with the specified ID
+		}
+		
+		return accounts;
+	}
+	
+	public void addUserAccount(int userId, int accountId) {
+		// Adds our pair to the USERS-ACCOUNTS table.
+		if(uaDAO.insert(userId, accountId) < 1) throw new FailedStatementException();
 	}
 }
