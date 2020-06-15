@@ -76,4 +76,9 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		}
 		return false; // If no match is found, return false.
 	}
+	
+	public List<AbstractAccount> findByStatus(int statusId){
+		// Find all accounts of a specified status ID
+		return aDAO.findByStatus(statusId);
+	}
 }

@@ -39,10 +39,9 @@ public class UserAccountDAO implements IUserAccountDAO {
 	}
 
 	@Override
-	public List<UserAccount> findAccountsByUser(AbstractUser u) {
+	public List<UserAccount> findAccountsByUser(int userId) {
 		// Gets a list of all accounts associated with the user
 		List<UserAccount> accountsByUser = new ArrayList<>();
-		int userId = u.getUserId();
 
 		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
 			//Allows us to instantiate some variable, and at the end of try it will auto-close 

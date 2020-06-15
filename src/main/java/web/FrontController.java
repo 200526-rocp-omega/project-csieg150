@@ -80,17 +80,45 @@ public class FrontController extends HttpServlet {
 			case "accounts":
 				if(portions.length==1) { // If the URI is just 'accounts'
 					as.guard(session, "Employee", "Admin"); // Checks if employee or admin
-					List<AbstractAccount> accounts = ac.findAll(session); // Get all accounts
+					List<AbstractAccount> accounts = ac.findAll(); // Get all accounts
 					rsp.getWriter().println(om.writeValueAsString(accounts));
 					break;
 				}
 				switch(portions[1]) {
 				case "status": 
 					//TODO Find all accounts with a specific 'statusId' in portions[2]
+					as.guard(session, "Employee", "Admin"); // Check if they have permission first
+					
+					try {
+						
+						int statusId = Integer.parseInt(portions[2]); // Check what status ID to get
+						List<AbstractAccount> accounts = ac.findByStatus(statusId); // grab the list of accounts
+						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
+						break;
+						
+					} catch(NumberFormatException e) {
+						rsp.setStatus(404);
+						MessageTemplate message = new MessageTemplate("This is not a valid resource");
+						rsp.getWriter().println(om.writeValueAsString(message));
+					}
 					break;
 					
 				case "owner":
 					//TODO Find all accounts related to a specific 'ownerId' in portions[2]
+					
+					try {
+						
+						int userId = Integer.parseInt(portions[2]); // Check what user ID to get
+						as.guard(session, userId, "Employee", "Admin"); // Check if they have permission first
+						List<AbstractAccount> accounts = ac.findByStatus(userId); // grab the list of associated accounts
+						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
+						break;
+						
+					} catch(NumberFormatException e) {
+						rsp.setStatus(404);
+						MessageTemplate message = new MessageTemplate("This is not a valid resource");
+						rsp.getWriter().println(om.writeValueAsString(message));
+					}
 					break;
 				default:
 					try {
@@ -167,7 +195,7 @@ public class FrontController extends HttpServlet {
 				//TODO take in account information as well as the 'main' userId
 				if(portions.length == 1) {
 					as.guard(session, "Employee", "Admin"); // Check if Employee or admin
-					ac.findAll(session); //Access all account records.
+					
 				}
 				switch(portions[1]) {
 

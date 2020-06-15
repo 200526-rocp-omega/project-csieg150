@@ -11,8 +11,12 @@ import models.AbstractUser;
 public class AccountController {
 	private static AccountService as = new AccountService();
 	
-	public List<AbstractAccount> findAll(HttpSession session){
+	public List<AbstractAccount> findAll(){
 		return as.findAll();
+	}
+	
+	public List<AbstractAccount> findByStatus(int statusId){
+		return as.findByStatus(statusId);
 	}
 	
 	public AbstractAccount findAccountById(int accountId) {			

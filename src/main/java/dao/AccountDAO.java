@@ -196,7 +196,7 @@ public class AccountDAO implements IAccountDAO{
 
 	
 	@Override
-	public List<AbstractAccount> findByStatus(String status) {
+	public List<AbstractAccount> findByStatus(int statusId) {
 		List<AbstractAccount> allAccounts = new ArrayList<>();
 
 		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
@@ -207,10 +207,10 @@ public class AccountDAO implements IAccountDAO{
 					+ "FROM ACCOUNTS"
 					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
 					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id"
-					+ "WHERE ACCOUNT_STATUS.status = ?"; // gets all Users with the value of their role id displayed
+					+ "WHERE ACCOUNT_STATUS.id = ?"; // gets all accounts that match the specific account status ID
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);
-			stmnt.setString(1, status);
+			stmnt.setInt(1, statusId);
 			
 			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
 
