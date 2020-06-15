@@ -10,6 +10,7 @@ import models.AbstractAccount;
 import models.AbstractUser;
 import templates.BalanceTemplate;
 import templates.PostAccountTemplate;
+import templates.TransferTemplate;
 
 public class AccountController {
 	private static AccountService as = new AccountService();
@@ -53,5 +54,11 @@ public class AccountController {
 	
 	public AbstractAccount deposit(BalanceTemplate deposit) { // Deposit to the specified account
 		return as.deposit(deposit.getAccountId(), deposit.getAmount());
+	}
+	
+	public void transfer(TransferTemplate transfer) {
+		// The below simply withdraws from the Source account ID and deposits into the Target account ID in the same ammount. 
+		this.withdraw(new BalanceTemplate(transfer.getSourceAccountId(),transfer.getAmount()));
+		this.deposit(new BalanceTemplate(transfer.getTargetAccountId(),transfer.getAmount()));
 	}
 }

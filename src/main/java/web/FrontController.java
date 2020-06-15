@@ -25,6 +25,7 @@ import models.AbstractUser;
 import templates.BalanceTemplate;
 import templates.MessageTemplate;
 import templates.PostAccountTemplate;
+import templates.TransferTemplate;
 
 @SuppressWarnings("serial")
 public class FrontController extends HttpServlet {
@@ -43,6 +44,7 @@ public class FrontController extends HttpServlet {
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
+		MessageTemplate message = null;
 		
 		try {
 			switch(portions[0]) {
@@ -101,7 +103,7 @@ public class FrontController extends HttpServlet {
 						
 					} catch(NumberFormatException e) {
 						rsp.setStatus(404);
-						MessageTemplate message = new MessageTemplate("This is not a valid resource");
+						message = new MessageTemplate("This is not a valid resource");
 						rsp.getWriter().println(om.writeValueAsString(message));
 					}
 					break;
@@ -119,7 +121,7 @@ public class FrontController extends HttpServlet {
 						
 					} catch(NumberFormatException e) {
 						rsp.setStatus(404);
-						MessageTemplate message = new MessageTemplate("This is not a valid resource");
+						message = new MessageTemplate("This is not a valid resource");
 						rsp.getWriter().println(om.writeValueAsString(message));
 					}
 					break;
@@ -135,7 +137,7 @@ public class FrontController extends HttpServlet {
 						rsp.getWriter().println(om.writeValueAsString(account)); // Print the value.
 					} catch(NumberFormatException e) {
 						rsp.setStatus(404);
-						MessageTemplate message = new MessageTemplate("This is not a valid resource");
+						message = new MessageTemplate("This is not a valid resource");
 						rsp.getWriter().println(om.writeValueAsString(message));
 					}
 				}
@@ -150,17 +152,17 @@ public class FrontController extends HttpServlet {
 			}
 		} catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			MessageTemplate message = new MessageTemplate("The incoming token has expired");
+			message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("Invalid request");
+			message = new MessageTemplate("Invalid request");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
 			rsp.setStatus(401);
-			MessageTemplate message = new MessageTemplate("You are not authorized");
+			message = new MessageTemplate("You are not authorized");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 		
@@ -177,6 +179,7 @@ public class FrontController extends HttpServlet {
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
+		MessageTemplate message = null;
 		
 		try {
 			switch(portions[0]) {
@@ -206,32 +209,42 @@ public class FrontController extends HttpServlet {
 
 				
 				case "withdraw":
-					//TODO
+
 					BalanceTemplate withdraw = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
 					if(ac.isOwner(session, withdraw.getAccountId()) == false) { // If the user is not an owner of the account
 						as.guard(session, "Admin"); // Check if they are an admin
 					}
 					// Getting past means user is an owner of the account or an admin
-					AbstractAccount withdrawnAccount = ac.withdraw(withdraw); // Withdraw the amount from the specified account
+					ac.withdraw(withdraw); // Withdraw the amount from the specified account
 					rsp.setStatus(200); // OK
-					rsp.getWriter().println(om.writeValueAsString(withdrawnAccount)); // Write the updated account values.
+					message = new MessageTemplate("$" + withdraw.getAmount() + "has been withdrawn from Account #" + withdraw.getAccountId());
+					rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
 					break;
 					
 				case "deposit":
-					//TODO
+					
 					BalanceTemplate deposit = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
 					if(ac.isOwner(session, deposit.getAccountId()) == false) { // If the user is not an owner of the account
 						as.guard(session, "Admin"); // Check if they are an admin
 					}
 					// Getting past means user is an owner of the account or an admin
-					AbstractAccount depositedAccount = ac.deposit(deposit); // Deposit the amount to the specified account
+					ac.deposit(deposit); // Deposit the amount to the specified account
 					rsp.setStatus(200); // OK
-					rsp.getWriter().println(om.writeValueAsString(depositedAccount)); // Write the updated account values.
+					message = new MessageTemplate("$" + deposit.getAmount() + " has been deposited from Account #" + deposit.getAccountId());
+					rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
 					break;
 				
 				case "transfer":
 					//TODO
-					
+					TransferTemplate transfer = om.readValue(req.getReader(),TransferTemplate.class); // Fetch source and target ids and transfer amount
+					if(ac.isOwner(session, transfer.getSourceAccountId()) == false) { // If the user is not an owner of the account
+						as.guard(session, "Admin"); // Check if they are an admin
+					} 
+					// Getting past means user is an owner of the source account or an admin
+					rsp.setStatus(200); // OK
+					message = new MessageTemplate("$" + transfer.getAmount() + " has been transfered from Account #" + transfer.getSourceAccountId()
+					+ " to Account #" + transfer.getTargetAccountId());
+					rsp.getWriter().println(om.writeValueAsString(message));
 					break;
 				
 				case "passTime":
@@ -247,26 +260,26 @@ public class FrontController extends HttpServlet {
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			MessageTemplate message = new MessageTemplate("The incoming token has expired");
+			message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (InvalidLoginException e) { // If they put in bad credentials
 			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("Invalid credentials");
+			message = new MessageTemplate("Invalid credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("Invalid request");
+			message = new MessageTemplate("Invalid request");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
 			rsp.setStatus(401);
-			MessageTemplate message = new MessageTemplate("You are not authorized");
+			message = new MessageTemplate("You are not authorized");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		} catch (IllegalBalanceException e) {
 			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("The amount to withdraw and deposit must be greater than 0");
+			message = new MessageTemplate("The amount to withdraw and deposit must be greater than 0");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 
@@ -281,6 +294,7 @@ public class FrontController extends HttpServlet {
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
+		MessageTemplate message = null;
 		
 		try {
 			switch(portions[0]) {
@@ -302,17 +316,17 @@ public class FrontController extends HttpServlet {
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			MessageTemplate message = new MessageTemplate("The incoming token has expired");
+			message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		}  catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("Invalid request");
+			message = new MessageTemplate("Invalid request");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
 			rsp.setStatus(401);
-			MessageTemplate message = new MessageTemplate("You are not authorized");
+			message = new MessageTemplate("You are not authorized");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 	}
