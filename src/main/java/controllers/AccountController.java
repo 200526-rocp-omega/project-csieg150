@@ -8,6 +8,7 @@ import Service.AccountService;
 import exceptions.FailedStatementException;
 import models.AbstractAccount;
 import models.AbstractUser;
+import templates.BalanceTemplate;
 import templates.PostAccountTemplate;
 
 public class AccountController {
@@ -44,5 +45,9 @@ public class AccountController {
 	
 	public AbstractAccount update(AbstractAccount account) {
 		return as.update(account);
+	}
+	
+	public AbstractAccount withdraw(BalanceTemplate withdraw) {
+		return as.withdraw(withdraw.getAccountId(), withdraw.getAmount());
 	}
 }

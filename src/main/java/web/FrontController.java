@@ -22,6 +22,7 @@ import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
 import models.AbstractAccount;
 import models.AbstractUser;
+import templates.BalanceTemplate;
 import templates.MessageTemplate;
 import templates.PostAccountTemplate;
 
@@ -206,7 +207,14 @@ public class FrontController extends HttpServlet {
 				
 				case "withdraw":
 					//TODO
-					
+					BalanceTemplate withdraw = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
+					if(ac.isOwner(session, withdraw.getAccountId()) == false) { // If the user is not an owner of the account
+						as.guard(session, "Admin"); // Check if they are an admin
+					}
+					// Getting past means user is an owner of the account or an admin
+					AbstractAccount updatedAccount = ac.withdraw(withdraw);
+					rsp.setStatus(200); // OK
+					rsp.getWriter().println(om.writeValueAsString(updatedAccount)); // Write the updated account values.
 					break;
 					
 				case "deposit":
