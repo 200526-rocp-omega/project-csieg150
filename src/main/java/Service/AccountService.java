@@ -6,6 +6,7 @@ import java.util.List;
 import dao.AccountDAO;
 import dao.UserAccountDAO;
 import exceptions.FailedStatementException;
+import exceptions.IllegalBalanceException;
 import models.AbstractAccount;
 import models.UserAccount;
 
@@ -43,7 +44,7 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		double accountFunds = dbAccount.getBalance();
 		
 		if(accountFunds - amount < 0) { // Can't overdraw, could set some minimum alternatively.
-			throw new FailedStatementException();
+			throw new IllegalBalanceException();
 		}
 		aDAO.updateBalance(accountId, (accountFunds - amount));
 	
@@ -52,7 +53,7 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 	
 	public AbstractAccount deposit(int accountId, double amount) {
 		if(amount < 0) {
-			throw new FailedStatementException();
+			throw new IllegalBalanceException();
 		}
 		AbstractAccount dbAccount = aDAO.findByID(accountId);
 		double accountFunds = dbAccount.getBalance();
