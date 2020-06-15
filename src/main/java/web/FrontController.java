@@ -276,6 +276,13 @@ public class FrontController extends HttpServlet {
 				AbstractUser user = uc.updateUser(u);
 				rsp.getWriter().println(om.writeValueAsString(user)); // Returns the updated user if no exception thrown.
 				break;
+				
+			case "accounts":
+				AbstractAccount account = om.readValue(req.getReader(), AbstractAccount.class); // Pull the account info from the request
+				as.guard(session, "Admin"); // Only allow Admins to perform this kind of update.
+				AbstractAccount updatedAccount = ac.update(account);
+				rsp.setStatus(200); // 200 OK
+				rsp.getWriter().println(om.writeValueAsString(updatedAccount)); // Return the updated accounts
 			}
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
@@ -283,12 +290,7 @@ public class FrontController extends HttpServlet {
 			MessageTemplate message = new MessageTemplate("The incoming token has expired");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
-		} catch (InvalidLoginException e) { // If they put in bad credentials
-			rsp.setStatus(400);
-			MessageTemplate message = new MessageTemplate("Invalid credentials");
-			rsp.getWriter().println(om.writeValueAsString(message));
-			
-		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
+		}  catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
 			MessageTemplate message = new MessageTemplate("Invalid request");
 			rsp.getWriter().println(om.writeValueAsString(message));

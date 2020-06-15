@@ -41,4 +41,8 @@ public class AccountController {
 		as.addUserAccount(postedAccount.getUserId(), postedAccount.getAccountId()); // Add relationship to Users-Accounts table
 		return this.findAccountById(postedAccount.getAccountId());
 	}
+	
+	public AbstractAccount update(AbstractAccount account) {
+		return as.update(account);
+	}
 }
