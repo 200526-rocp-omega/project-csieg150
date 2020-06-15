@@ -212,14 +212,21 @@ public class FrontController extends HttpServlet {
 						as.guard(session, "Admin"); // Check if they are an admin
 					}
 					// Getting past means user is an owner of the account or an admin
-					AbstractAccount updatedAccount = ac.withdraw(withdraw);
+					AbstractAccount withdrawnAccount = ac.withdraw(withdraw); // Withdraw the amount from the specified account
 					rsp.setStatus(200); // OK
-					rsp.getWriter().println(om.writeValueAsString(updatedAccount)); // Write the updated account values.
+					rsp.getWriter().println(om.writeValueAsString(withdrawnAccount)); // Write the updated account values.
 					break;
 					
 				case "deposit":
 					//TODO
-					
+					BalanceTemplate deposit = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
+					if(ac.isOwner(session, deposit.getAccountId()) == false) { // If the user is not an owner of the account
+						as.guard(session, "Admin"); // Check if they are an admin
+					}
+					// Getting past means user is an owner of the account or an admin
+					AbstractAccount depositedAccount = ac.deposit(deposit); // Deposit the amount to the specified account
+					rsp.setStatus(200); // OK
+					rsp.getWriter().println(om.writeValueAsString(depositedAccount)); // Write the updated account values.
 					break;
 				
 				case "transfer":

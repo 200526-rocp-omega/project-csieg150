@@ -55,8 +55,8 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		if(amount < 0) {
 			throw new IllegalBalanceException();
 		}
-		AbstractAccount dbAccount = aDAO.findByID(accountId);
-		double accountFunds = dbAccount.getBalance();
+		
+		double accountFunds = aDAO.findByID(accountId).getBalance();
 		
 		aDAO.updateBalance(accountId, (accountFunds + amount));
 	

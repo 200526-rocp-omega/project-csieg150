@@ -43,11 +43,15 @@ public class AccountController {
 		return this.findAccountById(postedAccount.getAccountId());
 	}
 	
-	public AbstractAccount update(AbstractAccount account) {
+	public AbstractAccount update(AbstractAccount account) { // Update the selected account 
 		return as.update(account);
 	}
 	
-	public AbstractAccount withdraw(BalanceTemplate withdraw) {
+	public AbstractAccount withdraw(BalanceTemplate withdraw) { // Withdraw from the specified account
 		return as.withdraw(withdraw.getAccountId(), withdraw.getAmount());
+	}
+	
+	public AbstractAccount deposit(BalanceTemplate deposit) { // Deposit to the specified account
+		return as.deposit(deposit.getAccountId(), deposit.getAmount());
 	}
 }
