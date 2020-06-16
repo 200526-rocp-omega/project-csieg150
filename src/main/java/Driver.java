@@ -1,4 +1,6 @@
+import Service.AccountService;
 import dao.AccountDAO;
+import exceptions.IllegalBalanceException;
 import models.AbstractAccount;
 import models.AccountStatus;
 import models.AccountType;
@@ -8,11 +10,15 @@ public class Driver {
 
 	public static void main(String[] args) {
 		
-		AccountDAO aDAO = new AccountDAO();
+		AccountService as = new AccountService();
 		
-		for(AbstractAccount account : aDAO.findByType(2)) {
-			System.out.println(account);
+		if(as.userIsOwner(2, 6)) {
+			System.out.println("confirmed owner");
+		} else {
+			System.out.println("Not owner");
 		}
+		
+		
 		
 		
 	}

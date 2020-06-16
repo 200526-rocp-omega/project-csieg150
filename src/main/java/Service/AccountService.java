@@ -37,8 +37,9 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 	public AbstractAccount withdraw(int accountId, double amount) {
 		// Given the current user and the account they want to withdraw from, how much? 
 		// If the amount is greater than balance or less than zero, throw an error
-		if(amount < 0) {
-			throw new FailedStatementException();
+		
+		if(amount < 0) { // If they try and withdraw a negative amount
+			throw new IllegalBalanceException(); // throw an exception
 		}
 		AbstractAccount dbAccount = aDAO.findByID(accountId);
 		double accountFunds = dbAccount.getBalance();
@@ -46,21 +47,21 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		if(accountFunds - amount < 0) { // Can't overdraw, could set some minimum alternatively.
 			throw new IllegalBalanceException();
 		}
-		aDAO.updateBalance(accountId, (accountFunds - amount));
+		aDAO.updateBalance(accountId, (accountFunds - amount)); // commit the update when safe
 	
-		return aDAO.findByID(accountId);
+		return aDAO.findByID(accountId); // return the updated user
 	}
 	
 	public AbstractAccount deposit(int accountId, double amount) {
-		if(amount < 0) {
-			throw new IllegalBalanceException();
+		if(amount < 0) { // If trying to deposit a negative amount
+			throw new IllegalBalanceException(); // throw an exception
 		}
 		
-		double accountFunds = aDAO.findByID(accountId).getBalance();
+		double accountFunds = aDAO.findByID(accountId).getBalance(); // Find how much they have
 		
-		aDAO.updateBalance(accountId, (accountFunds + amount));
+		aDAO.updateBalance(accountId, (accountFunds + amount)); // safely commit change
 	
-		return aDAO.findByID(accountId);
+		return aDAO.findByID(accountId); // return updated user
 	}
 	
 	public List<UserAccount> ownersOfAccount(int accountId) {

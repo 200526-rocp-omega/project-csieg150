@@ -49,7 +49,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, userId); // Fetches the account ID to compare to.
 
-			ResultSet rs = stmnt.executeQuery(sql); // Right as this is executed, the query runs to the database and grabs the info
+			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
 
 			while(rs.next()) { // For each entry in the result set
 				int accountId = rs.getInt("ACCOUNT_ID"); // Grab the account id
@@ -79,7 +79,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, accountId); // Fetches the account ID to compare to.
 
-			ResultSet rs = stmnt.executeQuery(sql); // Right as this is executed, the query runs to the database and grabs the info
+			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
 
 			while(rs.next()) { // For each entry in the result set
 				int userId = rs.getInt("USER_ID"); // Grab the user id
@@ -106,7 +106,7 @@ public class UserAccountDAO implements IUserAccountDAO {
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 
-			ResultSet rs = stmnt.executeQuery(sql); // Right as this is executed, the query runs to the database and grabs the info
+			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
 
 			while(rs.next()) { // For each entry in the result set
 				int userId = rs.getInt("USER_ID"); // Grab the user id
