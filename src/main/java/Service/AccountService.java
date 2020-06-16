@@ -71,6 +71,7 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 	
 	public boolean userIsOwner(int userId, int accountId) {
 		// Grabs the list of associated users and then checks if the given userId is in that list.
+		// confirmed works
 		List<UserAccount> usersList = this.ownersOfAccount(accountId); 
 		for(UserAccount userAccount : usersList) { // For each found result
 			if(userAccount.getUserId() == userId) { // compare if the userIds match
@@ -80,12 +81,13 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		return false; // If no match is found, return false.
 	}
 	
-	public List<AbstractAccount> findByStatus(int statusId){
+	public List<AbstractAccount> findByStatus(int statusId){ 
 		// Find all accounts of a specified status ID
 		return aDAO.findByStatus(statusId);
 	}
 	
-	public List<AbstractAccount> findByOwner(int userId){
+	public List<AbstractAccount> findByOwner(int userId){ // Find all accounts associated with the given userID
+		// confirmed works
 		
 		List<UserAccount> userAccounts = uaDAO.findAccountsByUser(userId); // Grab the associated user/accounts
 		
@@ -106,9 +108,10 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		if(uaDAO.insert(userId, accountId) < 1) throw new FailedStatementException();
 	}
 	
-	public void passTime(int numOfMonths) {
+	public void passTime(int numOfMonths) { // Accrue 'numOfMonths' worth compound interest.
+		// Confirmed works
 		int savingsId = 2; // This is here just so we know what '2' represents - the AccountType for savings
-		double interestRate = 0.005; // Monthly interest rate we control
+		double interestRate = 0.005; // Monthly interest rate we control - 0.5% in this case
 		List<AbstractAccount> accounts = aDAO.findByType(savingsId);
 		for(AbstractAccount account : accounts) { // For every savings account
 			for(int i = 0; i < numOfMonths; i++) {
@@ -116,5 +119,10 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 			}
 			aDAO.updateBalance(account.getAccountId(), account.getBalance()); // Update the balance before moving to the next account 
 		}
+	}
+
+	public List<AbstractAccount> findByType(int typeId) { // Find by account type (1 checking, 2 savings)
+		//Confirmed works
+		return aDAO.findByType(typeId);
 	}
 }

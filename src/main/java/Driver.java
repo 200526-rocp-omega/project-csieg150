@@ -1,5 +1,6 @@
 import Service.AccountService;
 import dao.AccountDAO;
+import dao.UserAccountDAO;
 import exceptions.IllegalBalanceException;
 import models.AbstractAccount;
 import models.AccountStatus;
@@ -12,15 +13,10 @@ public class Driver {
 		
 		AccountService as = new AccountService();
 		
-		if(as.userIsOwner(2, 6)) {
-			System.out.println("confirmed owner");
-		} else {
-			System.out.println("Not owner");
-		}
+		System.out.println(as.findByType(2));
+		as.passTime(2);
 		
-		
-		
-		
+		System.out.println(as.findByType(2));
 	}
 
 }
