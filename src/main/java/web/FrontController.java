@@ -194,7 +194,7 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 				
 			case "user":
-				//TODO insert into the user table and return the stuff.
+				// insert into the user table and return the stuff.
 				as.guard(session, "Employee","Admin"); //Rather have it so employees are the ones to instantiate an account. This isn't gmail, it's a bank
 				AbstractUser postedUser = om.readValue(req.getReader(), AbstractUser.class);
 				postedUser = uc.insert(postedUser);
@@ -203,8 +203,8 @@ public class FrontController extends HttpServlet {
 				break;
 			
 			case "accounts":
-				//TODO take in account information as well as the 'main' userId
-				if(portions.length == 1) {
+
+				if(portions.length == 1) { // Just /accounts - posting there is for creating accounts
 					
 					PostAccountTemplate postedAccount = om.readValue(req.getReader(), PostAccountTemplate.class); // Get values
 					int userId = postedAccount.getUserId(); // Find associated userID
@@ -215,57 +215,79 @@ public class FrontController extends HttpServlet {
 					rsp.setStatus(201); // 201 Created
 					rsp.getWriter().println(om.writeValueAsString(account)); // Return the entered value. 
 				}
-				switch(portions[1]) {
-
 				
-				case "withdraw":
-
-					BalanceTemplate withdraw = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
-					if(ac.isOwner(session, withdraw.getAccountId()) == false) { // If the user is not an owner of the account
-						as.guard(session, "Admin"); // Check if they are an admin
-					}
-					// Getting past means user is an owner of the account or an admin
-					ac.withdraw(withdraw); // Withdraw the amount from the specified account
-					rsp.setStatus(200); // OK
-					message = new MessageTemplate("$" + withdraw.getAmount() + "has been withdrawn from Account #" + withdraw.getAccountId());
-					rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
-					break;
+				if(req.getQueryString() != null) { // If we have a query string
 					
-				case "deposit":
+					int userId = -99; // Dummy value to make sure our parse works.
 					
-					BalanceTemplate deposit = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
-					if(ac.isOwner(session, deposit.getAccountId()) == false) { // If the user is not an owner of the account
-						as.guard(session, "Admin"); // Check if they are an admin
+					try { // Try and parse the source userId from the URI
+						
+						userId = Integer.parseInt(portions[1]);
+						
+					} catch (NumberFormatException e) {
+						
+						rsp.setStatus(404);
+						message = new MessageTemplate("Resource not found");
+						rsp.getWriter().println(om.writeValueAsString(message));
+						
 					}
-					// Getting past means user is an owner of the account or an admin
-					ac.deposit(deposit); // Deposit the amount to the specified account
-					rsp.setStatus(200); // OK
-					message = new MessageTemplate("$" + deposit.getAmount() + " has been deposited from Account #" + deposit.getAccountId());
-					rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
-					break;
-				
-				case "transfer":
-					//TODO
-					TransferTemplate transfer = om.readValue(req.getReader(),TransferTemplate.class); // Fetch source and target ids and transfer amount
-					if(ac.isOwner(session, transfer.getSourceAccountId()) == false) { // If the user is not an owner of the account
-						as.guard(session, "Admin"); // Check if they are an admin
-					} 
-					// Getting past means user is an owner of the source account or an admin
-					rsp.setStatus(200); // OK
-					message = new MessageTemplate("$" + transfer.getAmount() + " has been transfered from Account #" + transfer.getSourceAccountId()
-					+ " to Account #" + transfer.getTargetAccountId());
-					rsp.getWriter().println(om.writeValueAsString(message));
-					break;
-				
-				default:
-					rsp.setStatus(404);
-					message = new MessageTemplate("Resource not found");
-					rsp.getWriter().println(om.writeValueAsString(message));
+					
+					switch(req.getQueryString()) { // To make for more restful endpoints I want to involve query strings
+					
+					case "withdraw":
+
+						BalanceTemplate withdraw = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
+						
+						if(ac.isOwner(session, withdraw.getAccountId()) == false) { // If the user is not an owner of the account
+							as.guard(session, "Admin"); // Check if they are an admin
+						}
+						
+						// Getting past means user is an owner of the account or an admin
+						ac.withdraw(withdraw); // Withdraw the amount from the specified account
+						rsp.setStatus(200); // OK
+						message = new MessageTemplate("$" + withdraw.getAmount() + "has been withdrawn from Account #" + withdraw.getAccountId());
+						rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
+						break;
+						
+					case "deposit":
+						
+						BalanceTemplate deposit = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
+						
+						if(ac.isOwner(session, deposit.getAccountId()) == false) { // If the user is not an owner of the account
+							as.guard(session, "Admin"); // Check if they are an admin
+						}
+						
+						// Getting past means user is an owner of the account or an admin
+						ac.deposit(deposit); // Deposit the amount to the specified account
+						rsp.setStatus(200); // OK
+						message = new MessageTemplate("$" + deposit.getAmount() + " has been deposited from Account #" + deposit.getAccountId());
+						rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
+						break;
+					
+					case "transfer":
+						
+						TransferTemplate transfer = om.readValue(req.getReader(),TransferTemplate.class); // Fetch source and target ids and transfer amount
+						if(ac.isOwner(session, transfer.getSourceAccountId()) == false) { // If the user is not an owner of the account
+							as.guard(session, "Admin"); // Check if they are an admin
+						} 
+						// Getting past means user is an owner of the source account or an admin
+						rsp.setStatus(200); // OK
+						message = new MessageTemplate("$" + transfer.getAmount() + " has been transfered from Account #" + transfer.getSourceAccountId()
+						+ " to Account #" + transfer.getTargetAccountId());
+						rsp.getWriter().println(om.writeValueAsString(message));
+						break;
+					
+					default:
+						rsp.setStatus(404);
+						message = new MessageTemplate("Resource not found");
+						rsp.getWriter().println(om.writeValueAsString(message));
+					}
 				}
+				
 				break;
 				
 			case "passTime":
-				//TODO
+				// Accrue an amount of compound interest per 
 				as.guard(session, "Admin"); //Check if user is admin
 				PassTimeTemplate passTime =  om.readValue(req.getReader(),PassTimeTemplate.class); // Grab our template from the body
 				ac.passTime(passTime.getNumOfMonths()); //Pass the time by the specified number of months
@@ -281,12 +303,12 @@ public class FrontController extends HttpServlet {
 			
 		} catch (InvalidLoginException e) { // If they put in bad credentials
 			rsp.setStatus(400);
-			message = new MessageTemplate("Invalid credentials");
+			message = new MessageTemplate("Invalid login credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
 			rsp.setStatus(400);
-			message = new MessageTemplate("Invalid request");
+			message = new MessageTemplate("Invalid POST request");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
@@ -311,7 +333,6 @@ public class FrontController extends HttpServlet {
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
 		MessageTemplate message = null;
-		
 		
 		try {
 			as.guard(session); // Ensures our user is logged in, otherwise they can't access
