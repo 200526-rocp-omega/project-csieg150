@@ -35,7 +35,7 @@ public class AccountDAO implements IAccountDAO{
 			
 			result = stmnt.executeUpdate();
 			
-			sql = "SELECT ISEQ$$_20534.CURRVAL FROM DUAL"; //This gets the auto-generated ID we just used for our new account
+			sql = "SELECT ISEQ$$_21571.CURRVAL FROM DUAL"; //This gets the auto-generated ID we just used for our new account
 			stmnt = conn.prepareStatement(sql);
 			
 			ResultSet rs = stmnt.executeQuery();
@@ -61,8 +61,8 @@ public class AccountDAO implements IAccountDAO{
 			//to prevent memory leaks, even if exception is thrown.
 			
 			String sql = "SELECT *"
-					+ "FROM ACCOUNTS"
-					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
+					+ "FROM ACCOUNTS "
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id "
 					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id"; // gets all Users with the value of their role id displayed
 			
 			Statement stmnt = conn.createStatement();
@@ -70,12 +70,12 @@ public class AccountDAO implements IAccountDAO{
 			ResultSet rs = stmnt.executeQuery(sql); // Right as this is executed, the query runs to the database and grabs the info
 			
 			while(rs.next()) { // For each entry in the result set
-				int id = rs.getInt("ACCOUNTS.ID"); // Grab the account id
-				double balance = rs.getDouble("ACCOUNTS.BALANCE");
-				int asID = rs.getInt("ACCOUNT_STATUS.ID");
-				String asStatus = rs.getString("ACCOUNT_STATUS.status");
-				int atID = rs.getInt("ACCOUNT_TYPE.ID");
-				String atType = rs.getString("ACCOUNT_TYPE.type");
+				int id = rs.getInt("ID"); // Grab the account id
+				double balance = rs.getDouble("BALANCE");
+				int asID = rs.getInt("STATUS_ID");
+				String asStatus = rs.getString("status");
+				int atID = rs.getInt("type_id");
+				String atType = rs.getString("type");
 				
 				AccountStatus as = new AccountStatus(asID,asStatus);
 				AccountType at = new AccountType(atID, atType);
@@ -97,8 +97,8 @@ public class AccountDAO implements IAccountDAO{
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			
 			String sql = "SELECT * FROM ACCOUNTS "
-					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
-					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id";
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id "
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id ";
 			
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, id); // Defines the WHERE ID = ?
@@ -204,9 +204,9 @@ public class AccountDAO implements IAccountDAO{
 			//to prevent memory leaks, even if exception is thrown.
 
 			String sql = "SELECT *"
-					+ "FROM ACCOUNTS"
-					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
-					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id"
+					+ "FROM ACCOUNTS "
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id "
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id "
 					+ "WHERE ACCOUNT_STATUS.id = ?"; // gets all accounts that match the specific account status ID
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);
@@ -243,10 +243,10 @@ public class AccountDAO implements IAccountDAO{
 			//Allows us to instantiate some variable, and at the end of try it will auto-close 
 			//to prevent memory leaks, even if exception is thrown.
 
-			String sql = "SELECT *"
-					+ "FROM ACCOUNTS"
-					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id"
-					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id"
+			String sql = "SELECT * "
+					+ "FROM ACCOUNTS "
+					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id "
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id "
 					+ "WHERE ACCOUNT_TYPE.id = ?"; // gets all accounts that match the specific account type ID
 
 			PreparedStatement stmnt = conn.prepareStatement(sql);

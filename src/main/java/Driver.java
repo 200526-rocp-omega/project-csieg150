@@ -7,20 +7,14 @@ import models.StandardAccount;
 public class Driver {
 
 	public static void main(String[] args) {
-		// This is just testing for the sake of seeing if insert worked
-		AccountDAO aDAO = new AccountDAO(); 
-		AccountStatus as = new AccountStatus(1,"Standard");
-		AccountType at = new AccountType(2,"Open");
-		AbstractAccount account = new StandardAccount(0,500.00,as,at);
-		System.out.println(account);
 		
-		int result = aDAO.insert(account);
-		if(result == 0) {
-			System.out.println("Broked son");
-		} else {
-			System.out.println("Yay we did it");
+		AccountDAO aDAO = new AccountDAO();
+		
+		for(AbstractAccount account : aDAO.findAll()) {
 			System.out.println(account);
 		}
+		
+		
 	}
 
 }
