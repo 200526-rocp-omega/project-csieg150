@@ -20,7 +20,7 @@ import templates.MessageTemplate;
 public class LoginController {
 	UserService us = new UserService();
 
-	public void doGet(HttpServletRequest req, HttpServletResponse rsp, MessageTemplate message)
+	public void doGet(HttpServletRequest req, HttpServletResponse rsp, MessageTemplate message, ObjectMapper om)
 		throws ServletException, IOException{
 		
 		rsp.setStatus(200); // Status ok
@@ -30,14 +30,14 @@ public class LoginController {
 		if(session.getAttribute("currentUser") != null) { // If a currentUser already exists
 			AbstractUser currentUser = (AbstractUser) req.getSession().getAttribute("currentuser");
 			message = new MessageTemplate("You are logged in as user: " + currentUser.toString());
-			writer.println(message); // They're logged in
+			writer.println(om.writeValueAsString(message)); // They're logged in
 		} else {
 			message = new MessageTemplate("You need to login. Post your credentials to /login");
-			writer.println(message); // They're not logged in
+			writer.println(om.writeValueAsString(message)); // They're not logged in
 		}
 	}
 	
-	public void doPost(HttpServletRequest req, HttpServletResponse rsp, ObjectMapper om)
+	public void doPost(HttpServletRequest req, HttpServletResponse rsp, MessageTemplate message, ObjectMapper om)
 		throws ServletException, IOException{
 		/*the doPost method is used */
 		
@@ -46,7 +46,8 @@ public class LoginController {
 		HttpSession session = req.getSession(); // Creates a session 
 		if(session.getAttribute("currentUser") != null) { // Checks if logged in
 			rsp.setStatus(400); // bad request
-			writer.println("Logged in already");
+			message = new MessageTemplate("Logged in already - GET from /logout to log out.");
+			writer.println(om.writeValueAsString(message));
 			return; // We are already logged in so no need to to it again.
 		}
 			
@@ -66,7 +67,7 @@ public class LoginController {
 		}
 	}
 	
-	public void logout(HttpServletRequest req, HttpServletResponse rsp)
+	public void logout(HttpServletRequest req, HttpServletResponse rsp, MessageTemplate message, ObjectMapper om)
 			throws ServletException, IOException{
 		HttpSession session = req.getSession(); // grab our session info
 		PrintWriter writer = rsp.getWriter();
@@ -74,11 +75,13 @@ public class LoginController {
 		if(session.getAttribute("currentUser") != null) { // If our user has a session:
 			session.invalidate(); // Totally destroys their session
 			rsp.setStatus(200); // Successful logout. 'OK'
-			writer.println("You have been logged out successfully.");
+			message = new MessageTemplate ("You have been logged out successfully.");
+			writer.println(om.writeValueAsString(message));
 			return;
 		} 
 		// If they don't have a session:
 		rsp.setStatus(400); // Bad request
-		writer.println("You aren't logged in, can't log out!");
+		message = new MessageTemplate("You aren't logged in to begin with. POST your credentials to /login");
+		writer.println(om.writeValueAsString(message));
 	}
 }

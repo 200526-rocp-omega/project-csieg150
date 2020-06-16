@@ -57,11 +57,11 @@ public class FrontController extends HttpServlet {
 				break;				
 				
 			case "login":
-				lc.doGet(req, rsp, message);
+				lc.doGet(req, rsp, message, om);
 				break;
 				
 			case "logout":
-				lc.logout(req, rsp);
+				lc.logout(req, rsp, message, om);
 				break;
 				
 			case "users":
@@ -187,7 +187,7 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 			
 			case "login":
-				lc.doPost(req, rsp, om);
+				lc.doPost(req, rsp, message, om);
 				break;
 				
 			case "user":
