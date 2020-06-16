@@ -22,6 +22,7 @@ import exceptions.InvalidLoginException;
 import exceptions.NotLoggedInException;
 import models.AbstractAccount;
 import models.AbstractUser;
+import templates.AmountTemplate;
 import templates.BalanceTemplate;
 import templates.MessageTemplate;
 import templates.PassTimeTemplate;
@@ -204,7 +205,20 @@ public class FrontController extends HttpServlet {
 			
 			case "accounts":
 
-				if(portions.length == 1) { // Just /accounts - posting there is for creating accounts
+				if(portions.length == 1) { // Just /accounts - posting there is for creating accounts or passtime, depending on query
+					
+					if(req.getQueryString().equals("passTime")) { // if /accounts?passTime
+						
+						// Accrue an amount of compound interest per month 
+						as.guard(session, "Admin"); //Check if user is admin
+						PassTimeTemplate passTime =  om.readValue(req.getReader(),PassTimeTemplate.class); // Grab our template from the body
+						ac.passTime(passTime.getNumOfMonths()); //Pass the time by the specified number of months
+						
+						rsp.setStatus(200);//Ok
+						message = new MessageTemplate(passTime.getNumOfMonths() + " months of compound interest have been accrued on all Savings accounts");
+						rsp.getWriter().println(om.writeValueAsString(message));
+						return;
+					}
 					
 					PostAccountTemplate postedAccount = om.readValue(req.getReader(), PostAccountTemplate.class); // Get values
 					int userId = postedAccount.getUserId(); // Find associated userID
@@ -213,16 +227,17 @@ public class FrontController extends HttpServlet {
 					AbstractAccount account = ac.insert(postedAccount); // Insert our records
 					
 					rsp.setStatus(201); // 201 Created
-					rsp.getWriter().println(om.writeValueAsString(account)); // Return the entered value. 
+					rsp.getWriter().println(om.writeValueAsString(account)); // Return the entered value.
+					return;
 				}
 				
 				if(req.getQueryString() != null) { // If we have a query string
 					
-					int userId = -99; // Dummy value to make sure our parse works.
+					int accountId = -99; // Dummy value to make sure our parse works.
 					
 					try { // Try and parse the source userId from the URI
 						
-						userId = Integer.parseInt(portions[1]);
+						accountId = Integer.parseInt(portions[1]);
 						
 					} catch (NumberFormatException e) {
 						
@@ -235,9 +250,10 @@ public class FrontController extends HttpServlet {
 					switch(req.getQueryString()) { // To make for more restful endpoints I want to involve query strings
 					
 					case "withdraw":
-
-						BalanceTemplate withdraw = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
 						
+						AmountTemplate amount = om.readValue(req.getReader(), AmountTemplate.class); // fetch amount posted
+						BalanceTemplate withdraw = new BalanceTemplate(accountId,amount.getAmount()); // Fetch our account ID and amount to change
+					
 						if(ac.isOwner(session, withdraw.getAccountId()) == false) { // If the user is not an owner of the account
 							as.guard(session, "Admin"); // Check if they are an admin
 						}
@@ -285,15 +301,6 @@ public class FrontController extends HttpServlet {
 				}
 				
 				break;
-				
-			case "passTime":
-				// Accrue an amount of compound interest per 
-				as.guard(session, "Admin"); //Check if user is admin
-				PassTimeTemplate passTime =  om.readValue(req.getReader(),PassTimeTemplate.class); // Grab our template from the body
-				ac.passTime(passTime.getNumOfMonths()); //Pass the time by the specified number of months
-				
-				message = new MessageTemplate(passTime.getNumOfMonths() + " months of compound interest have been accrued on all Savings accounts");
-				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
