@@ -11,13 +11,14 @@ import exceptions.InvalidLoginException;
 public class UserService {
 	private static IAbstractUserDAO uDAO = new AbstractUserDAO();
 	
-	public int insert(AbstractUser u) {
+	public AbstractUser insert(AbstractUser u) {
 		int result = uDAO.insert(u); // determine if passed or not.
-		if(result > 0) {
-			int userId = uDAO.findByUsername(u.getUsername()).getUserId(); // Finds the auto-generated userID
-			u.setUserId(userId); // Then sets it.
+		if(result <= 0) {
+			throw new FailedStatementException();
 		}
-		return result;
+		int userId = uDAO.findByUsername(u.getUsername()).getUserId(); // Finds the auto-generated userID
+		u.setUserId(userId); // Then sets it.
+		return u;
 	}
 	
 	public List<AbstractUser> findAll(){ // Pass in current user-list

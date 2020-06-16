@@ -65,6 +65,7 @@ public class FrontController extends HttpServlet {
 				break;
 				
 			case "users":
+				as.guard(session);
 				if(portions.length > 1) {
 					int userId = -99; // Dummy value to make sure the try block works.
 					try {
@@ -85,6 +86,7 @@ public class FrontController extends HttpServlet {
 				break;
 			
 			case "accounts":
+				as.guard(session);
 				if(portions.length==1) { // If the URI is just 'accounts'
 					as.guard(session, "Employee", "Admin"); // Checks if employee or admin
 					List<AbstractAccount> accounts = ac.findAll(); // Get all accounts
@@ -146,15 +148,13 @@ public class FrontController extends HttpServlet {
 				break;
 				
 			default: 
-				if(portions.length == 2) {
-					//TODO We will assume they're trying to get the account with a specified ID
-				}
 				rsp.setStatus(404); // Unable to be found
-				rsp.getWriter().println("URI does not exist");
+				message = new MessageTemplate("Resource not found");
+				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 		} catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			message = new MessageTemplate("The incoming token has expired");
+			message = new MessageTemplate("You are not logged in. Go to /login and POST your credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
@@ -184,14 +184,22 @@ public class FrontController extends HttpServlet {
 		MessageTemplate message = null;
 		
 		try {
-			switch(portions[0]) {
-			
-			case "login":
+			if(portions[0].equals("login")) {
 				lc.doPost(req, rsp, message, om);
-				break;
+				return;
+			}
+			
+			as.guard(session); // The following switch statements require a login. This blocks out any unsigned users
+			
+			switch(portions[0]) {
 				
 			case "user":
 				//TODO insert into the user table and return the stuff.
+				as.guard(session, "Employee","Admin"); //Rather have it so employees are the ones to instantiate an account. This isn't gmail, it's a bank
+				AbstractUser postedUser = om.readValue(req.getReader(), AbstractUser.class);
+				postedUser = uc.insert(postedUser);
+				rsp.setStatus(201); // 201 created
+				rsp.getWriter().println(om.writeValueAsString(postedUser));
 				break;
 			
 			case "accounts":
@@ -268,7 +276,7 @@ public class FrontController extends HttpServlet {
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			message = new MessageTemplate("The incoming token has expired");
+			message = new MessageTemplate("You are not logged in. Go to /login and POST your credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (InvalidLoginException e) { // If they put in bad credentials
@@ -287,7 +295,7 @@ public class FrontController extends HttpServlet {
 			rsp.getWriter().println(om.writeValueAsString(message));
 		} catch (IllegalBalanceException e) {
 			rsp.setStatus(400);
-			message = new MessageTemplate("The amount to withdraw and deposit must be greater than 0");
+			message = new MessageTemplate("The amount must be greater than $0. Any withdraws or transfers must be no greater than the source account balance");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 
@@ -304,7 +312,10 @@ public class FrontController extends HttpServlet {
 		HttpSession session = req.getSession();
 		MessageTemplate message = null;
 		
+		
 		try {
+			as.guard(session); // Ensures our user is logged in, otherwise they can't access
+			
 			switch(portions[0]) {
 			case "users":
 				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
@@ -324,7 +335,7 @@ public class FrontController extends HttpServlet {
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			message = new MessageTemplate("The incoming token has expired");
+			message = new MessageTemplate("You are not logged in. Go to /login and POST your credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		}  catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)

@@ -24,4 +24,8 @@ private UserService us = new UserService(); // Lets us access User Service metho
 	public AbstractUser updateUser(AbstractUser u) { // Authorizes and allows for update.		
 		return us.update(u);
 	}
+	
+	public AbstractUser insert(AbstractUser u) {
+		return us.insert(u);
+	}
 }

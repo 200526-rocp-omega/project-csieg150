@@ -7,10 +7,7 @@ import exceptions.NotLoggedInException;
 import models.AbstractUser;
 
 public class AuthService {
-	public void guard(HttpSession session, String...roles) {
-		if(session == null || session.getAttribute("currentUser") == null) {
-			throw new NotLoggedInException();
-		}
+	public void guard(HttpSession session, String...roles) { //Check if the current user is in our specified allowed roles
 		
 		AbstractUser currentUser = (AbstractUser) session.getAttribute("currentUser");
 		String userRole = currentUser.getRole().getRole(); // Find the role of our user.
@@ -24,10 +21,7 @@ public class AuthService {
 		throw new AuthorizationException(); // Not with an allowed role
 	}
 	
-	public void guard(HttpSession session, int id, String...roles) {
-		if(session == null || session.getAttribute("currentUser") == null) {
-			throw new NotLoggedInException();
-		}
+	public void guard(HttpSession session, int id, String...roles) { // Check if UserID matches currentuser's id or in allowed roles 
 		
 		AbstractUser currentUser = (AbstractUser) session.getAttribute("currentUser");
 		
@@ -42,5 +36,11 @@ public class AuthService {
 		}
 		
 		throw new AuthorizationException(); // Not the specified user nor an allowed role
+	}
+	
+	public void guard(HttpSession session) { // Checks if user is logged in or not
+		if(session == null || session.getAttribute("currentUser") == null) {
+			throw new NotLoggedInException();
+		}
 	}
 }
