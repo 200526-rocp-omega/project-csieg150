@@ -15,9 +15,11 @@ import models.StandardAccount;
 import util.ConnectionUtil;
 
 public class AccountDAO implements IAccountDAO{
+	// All functions are fully operational at this point in time.
 
 	@Override
-	public int insert(AbstractAccount a) {
+	public int insert(AbstractAccount a) { // Insert user into database and update the given object with the generated ID
+		//CONFIRMED WORKS
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the Account object for neat SQL implementation
@@ -53,7 +55,8 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
-	public List<AbstractAccount> findAll() {
+	public List<AbstractAccount> findAll() { // Return all users
+		//CONFIRMED WORKS
 		List<AbstractAccount> allAccounts = new ArrayList<>();
 		
 		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
@@ -92,13 +95,15 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
-	public AbstractAccount findByID(int id) {
+	public AbstractAccount findByID(int id) { // Find an account matching the given account id
+		//CONFIRMED WORKS
 		AbstractAccount result = null;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			
 			String sql = "SELECT * FROM ACCOUNTS "
 					+ "INNER JOIN ACCOUNT_STATUS ON ACCOUNTS.status_id = ACCOUNT_STATUS.id "
-					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id ";
+					+ "INNER JOIN ACCOUNT_TYPE ON ACCOUNTS.type_id = ACCOUNT_TYPE.id "
+					+ "WHERE ACCOUNTS.ID = ?";
 			
 			PreparedStatement stmnt = conn.prepareStatement(sql);
 			stmnt.setInt(1, id); // Defines the WHERE ID = ?
@@ -106,12 +111,12 @@ public class AccountDAO implements IAccountDAO{
 			ResultSet rs = stmnt.executeQuery(); // grabs result set of the query
 			
 			while(rs.next()) { // While there are results:
-				int accountId = rs.getInt("ACCOUNTS.id");
-				double balance = rs.getDouble("ACCOUNTS.balance");
-				int statusId = rs.getInt("ACCOUNT_STATUS.id");
-				String statusName = rs.getString("ACCOUNT_STATUS.status");
-				int typeId = rs.getInt("ACCOUNT_TYPE.id");
-				String typeName = rs.getString("ACCOUNT_TYPE.type");
+				int accountId = rs.getInt("id");
+				double balance = rs.getDouble("balance");
+				int statusId = rs.getInt("status_id");
+				String statusName = rs.getString("status");
+				int typeId = rs.getInt("type_id");
+				String typeName = rs.getString("type");
 				
 				AccountStatus as = new AccountStatus(statusId,statusName);
 				AccountType at = new AccountType(typeId,typeName);
@@ -127,6 +132,7 @@ public class AccountDAO implements IAccountDAO{
 	@Override
 	public int update(AbstractAccount a) {
 		// Update the various fields of an account record matching the given ID
+		//CONFIRMED WORKS
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the Account object for neat SQL implementation
@@ -154,7 +160,8 @@ public class AccountDAO implements IAccountDAO{
 	}
 
 	@Override
-	public int updateBalance(int id, double balance) {
+	public int updateBalance(int id, double balance) { // Update the balance of an account with the specified ID
+		//CONFIRMED WORKS
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			// The below 'unpacks' all the information in the Account object for neat SQL implementation
@@ -177,6 +184,7 @@ public class AccountDAO implements IAccountDAO{
 	@Override
 	public int delete(int accountId) {
 		// Delete the Account row that matches the given id
+		//CONFIRMED WORKS
 		int result = 0;
 		try (Connection conn = ConnectionUtil.getConnection()) {
 			
@@ -196,7 +204,8 @@ public class AccountDAO implements IAccountDAO{
 
 	
 	@Override
-	public List<AbstractAccount> findByStatus(int statusId) {
+	public List<AbstractAccount> findByStatus(int statusId) { // Locate files of an appropriate status (pending, open, closed, denied)
+		//CONFIRMED WORKS
 		List<AbstractAccount> allAccounts = new ArrayList<>();
 
 		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
@@ -215,12 +224,12 @@ public class AccountDAO implements IAccountDAO{
 			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
 
 			while(rs.next()) { // For each entry in the result set
-				int id = rs.getInt("ACCOUNTS.ID"); // Grab the account id
-				double balance = rs.getDouble("ACCOUNTS.BALANCE");
-				int asID = rs.getInt("ACCOUNT_STATUS.ID");
-				String asStatus = rs.getString("ACCOUNT_STATUS.status");
-				int atID = rs.getInt("ACCOUNT_TYPE.ID");
-				String atType = rs.getString("ACCOUNT_TYPE.type");
+				int id = rs.getInt("ID"); // Grab the account id
+				double balance = rs.getDouble("BALANCE");
+				int asID = rs.getInt("status_id");
+				String asStatus = rs.getString("status");
+				int atID = rs.getInt("type_id");
+				String atType = rs.getString("type");
 
 				AccountStatus as = new AccountStatus(asID,asStatus);
 				AccountType at = new AccountType(atID, atType);
@@ -236,7 +245,8 @@ public class AccountDAO implements IAccountDAO{
 		return allAccounts;
 	}
 
-	public List<AbstractAccount> findByType(int typeId){
+	public List<AbstractAccount> findByType(int typeId){ // Find by type (1 checking, 2 savings)
+		//CONFIRMED WORKS
 		
 		List<AbstractAccount> allAccounts = new ArrayList<>();
 		try (Connection conn = ConnectionUtil.getConnection()) {// This is a 'try with resources' block. 
@@ -255,12 +265,12 @@ public class AccountDAO implements IAccountDAO{
 			ResultSet rs = stmnt.executeQuery(); // Right as this is executed, the query runs to the database and grabs the info
 
 			while(rs.next()) { // For each entry in the result set
-				int id = rs.getInt("ACCOUNTS.ID"); // Grab the account id
-				double balance = rs.getDouble("ACCOUNTS.BALANCE");
-				int asID = rs.getInt("ACCOUNT_STATUS.ID");
-				String asStatus = rs.getString("ACCOUNT_STATUS.status");
-				int atID = rs.getInt("ACCOUNT_TYPE.ID");
-				String atType = rs.getString("ACCOUNT_TYPE.type");
+				int id = rs.getInt("id"); // Grab the account id
+				double balance = rs.getDouble("balance");
+				int asID = rs.getInt("status_id");
+				String asStatus = rs.getString("status");
+				int atID = rs.getInt("type_id");
+				String atType = rs.getString("type");
 
 				AccountStatus as = new AccountStatus(asID,asStatus);
 				AccountType at = new AccountType(atID, atType);

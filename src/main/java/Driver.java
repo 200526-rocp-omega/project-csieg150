@@ -10,7 +10,7 @@ public class Driver {
 		
 		AccountDAO aDAO = new AccountDAO();
 		
-		for(AbstractAccount account : aDAO.findAll()) {
+		for(AbstractAccount account : aDAO.findByType(2)) {
 			System.out.println(account);
 		}
 		
