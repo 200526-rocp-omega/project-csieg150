@@ -185,7 +185,7 @@ public class FrontController extends HttpServlet {
 		MessageTemplate message = null;
 		
 		try {
-			if(portions[0].equals("login")) {
+			if(portions[0].equals("user") && req.getQueryString().equals("login")) {
 				lc.doPost(req, rsp, message, om);
 				return;
 			}
@@ -298,6 +298,10 @@ public class FrontController extends HttpServlet {
 						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
 					}
+				} else {
+					rsp.setStatus(404);
+					message = new MessageTemplate("Resource not found");
+					rsp.getWriter().println(om.writeValueAsString(message));
 				}
 				
 				break;
