@@ -51,12 +51,13 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 			
 			case "":
-				rsp.setStatus(200);
-				rsp.getWriter().println("hi how's it goin");
+				rsp.setStatus(200); // 200 OK
+				message = new MessageTemplate("This is / . 'post' to /login with your credentials to access more of the site");
+				rsp.getWriter().println(om.writeValueAsString(message));
 				break;				
 				
 			case "login":
-				lc.doGet(req, rsp);
+				lc.doGet(req, rsp, message);
 				break;
 				
 			case "logout":

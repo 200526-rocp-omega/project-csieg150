@@ -15,11 +15,12 @@ import Service.UserService;
 import exceptions.InvalidLoginException;
 import models.AbstractUser;
 import templates.LoginTemplate;
+import templates.MessageTemplate;
 
 public class LoginController {
 	UserService us = new UserService();
 
-	public void doGet(HttpServletRequest req, HttpServletResponse rsp)
+	public void doGet(HttpServletRequest req, HttpServletResponse rsp, MessageTemplate message)
 		throws ServletException, IOException{
 		
 		rsp.setStatus(200); // Status ok
@@ -27,9 +28,12 @@ public class LoginController {
 		HttpSession session = req.getSession(); // Creates a session 
 		
 		if(session.getAttribute("currentUser") != null) { // If a currentUser already exists
-			writer.println("Logged in already"); // They're logged in
+			AbstractUser currentUser = (AbstractUser) req.getSession().getAttribute("currentuser");
+			message = new MessageTemplate("You are logged in as user: " + currentUser.toString());
+			writer.println(message); // They're logged in
 		} else {
-			writer.println("You need to log in"); // They're not logged in
+			message = new MessageTemplate("You need to login. Post your credentials to /login");
+			writer.println(message); // They're not logged in
 		}
 	}
 	
