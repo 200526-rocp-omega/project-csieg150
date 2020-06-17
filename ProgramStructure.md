@@ -1,6 +1,8 @@
 # Banking API Project for ROCP
 ### by Christopher Siegfried
 
+For POST formating, check PostCheatSheet.md!
+
 Below is the laid out version of how the program works, the various calls, and basically functions as a collection of all the comments in the program files.
 
 The general hierarchy is laid out as such:
@@ -13,3 +15,5 @@ The general hierarchy is laid out as such:
     * AccountService: Handles any business logic for account data, as well as the relationship to the USERS-ACCOUNTS table
       * AccountDAO: The DAO that interacts with our USERS database  and has access to our CRUD operations
       * UserAccountDAO: The DAO that interacts with our USERS-ACCOUNTS database and has access to our CRUD operations
+      
+      

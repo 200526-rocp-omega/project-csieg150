@@ -240,17 +240,21 @@ public class FrontController extends HttpServlet {
 		MessageTemplate message = null;
 		
 		try {
-			if(portions[0].equals("users") && req.getQueryString().toLowerCase().equals("login")) {
-				lc.doPost(req, rsp, message, om);
-				return;
-			}
+			
+			if(req.getQueryString() != null) {
+				if(portions[0].equals("users") && req.getQueryString().toLowerCase().equals("login")) {
+					lc.doPost(req, rsp, message, om);
+					return;
+				}
+			}			
 			
 			as.guard(session); // The following switch statements require a login. This blocks out any unsigned users
 			
 			switch(portions[0]) {
 				
-			case "user":
-				// insert into the user table and return the stuff.
+			case "users":
+				// insert into the user table and return the stuff in the format:
+				// userId = 0, username, password, firstName, lastName, email (needs _*@_*.*_ regex format), roleId (1-4) 
 				as.guard(session, "Employee","Admin"); //Rather have it so employees are the ones to instantiate an account. This isn't gmail, it's a bank
 				PostUserTemplate postedUser = om.readValue(req.getReader(), PostUserTemplate.class);				
 				AbstractUser insertedUser = uc.insert(postedUser.toUser());
