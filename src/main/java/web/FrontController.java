@@ -28,7 +28,7 @@ import templates.MessageTemplate;
 import templates.PassTimeTemplate;
 import templates.PostAccountTemplate;
 import templates.TransferTemplate;
-import templates.UpgradeUserTemplate;
+import templates.UserAccountTemplate;
 
 @SuppressWarnings("serial")
 public class FrontController extends HttpServlet {
@@ -405,7 +405,7 @@ public class FrontController extends HttpServlet {
 					
 					if(currentuser.getRole().getRoleId() > 1) { // If not a 'Standard' user
 						
-						UpgradeUserTemplate userToUpgrade = om.readValue(req.getReader(), UpgradeUserTemplate.class); // Read the PUT
+						UserAccountTemplate userToUpgrade = om.readValue(req.getReader(), UserAccountTemplate.class); // Read the PUT
 						
 						as.guard(session, userToUpgrade.getUserId(), "Admin"); // If the current user is upgrading their account or an admin
 

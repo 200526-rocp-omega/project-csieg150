@@ -2,16 +2,16 @@ package templates;
 
 import java.util.Objects;
 
-public class UpgradeUserTemplate {
+public class UserAccountTemplate {
 	private int userId; // The user to upgrade
 	private int accountId; // The account to take the upgrade fee from
 
-	public UpgradeUserTemplate() {
+	public UserAccountTemplate() {
 		super();
 		// TODO Auto-generated constructor stub
 	}
 
-	public UpgradeUserTemplate(int userId, int accountId) {
+	public UserAccountTemplate(int userId, int accountId) {
 		super();
 		this.userId = userId;
 		this.accountId = accountId;
@@ -43,16 +43,16 @@ public class UpgradeUserTemplate {
 		if (this == obj) {
 			return true;
 		}
-		if (!(obj instanceof UpgradeUserTemplate)) {
+		if (!(obj instanceof UserAccountTemplate)) {
 			return false;
 		}
-		UpgradeUserTemplate other = (UpgradeUserTemplate) obj;
+		UserAccountTemplate other = (UserAccountTemplate) obj;
 		return accountId == other.accountId && userId == other.userId;
 	}
 
 	@Override
 	public String toString() {
-		return "UpgradeUserTemplate [userId=" + userId + ", accountId=" + accountId + "]";
+		return "UserAccountTemplate [userId=" + userId + ", accountId=" + accountId + "]";
 	}
 
 	
