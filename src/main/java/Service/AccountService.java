@@ -125,4 +125,19 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		//Confirmed works
 		return aDAO.findByType(typeId);
 	}
+
+	public List<AbstractAccount> findByStatusAndOwner(int userId,int statusId){ // Grab all accounts belonging to an owner with the specified status
+		
+		List<AbstractAccount> resultAccounts = new ArrayList<>(); // The list we will be handing back
+		
+		for(AbstractAccount ownedAccount : this.findByOwner(userId)) { // Using our other method to get all accounts belonging to a user, iterate through that list
+			
+			if(ownedAccount.getStatus().getStatusId() == statusId) { // If the account's status matches the one we're looking for
+				resultAccounts.add(ownedAccount); // Add it to our return list
+			}
+			
+		}
+		
+		return resultAccounts; // Return the final list
+	}
 }

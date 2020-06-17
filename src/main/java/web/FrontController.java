@@ -55,29 +55,42 @@ public class FrontController extends HttpServlet {
 				rsp.setStatus(200); // 200 OK
 				message = new MessageTemplate("This is / . 'post' to /login with your credentials to access more of the site");
 				rsp.getWriter().println(om.writeValueAsString(message));
-				break;				
-				
-			case "login":
-				lc.doGet(req, rsp, message, om);
-				break;
-				
-			case "logout":
-				lc.logout(req, rsp, message, om);
-				break;
+				break;			
 				
 			case "users":
+				if(req.getQueryString() != null) {
+					switch(req.getQueryString()) {
+					
+					case "login":
+						lc.doGet(req, rsp, message, om);
+						break;
+						
+					case "logout":
+						lc.logout(req, rsp, message, om);
+						break;
+						
+					// No default case just yet - we'll have more opportunities for querystring later
+					}
+				}
+				
 				as.guard(session);
 				if(portions.length > 1) {
+					// If URI structured as /user/(something) - try and parse that something to see if it's a userId
+					// If it is, then access that user information if the currentuser is allowed to 
+					
 					int userId = -99; // Dummy value to make sure the try block works.
+					
 					try {
 						userId = Integer.parseInt(portions[1]);
 					} catch (NumberFormatException e) {
 						throw new FailedStatementException();
 					}
+					
 					as.guard(session, userId, "Employee", "Admin");
 					AbstractUser u = uc.accessUser(userId);
 					rsp.setStatus(200);
 					rsp.getWriter().println(om.writeValueAsString(u));
+					
 				} else {
 					// If not accessing a specific user, allow Employee or Admin to see list of all users.
 					as.guard(session, "Employee", "Admin");
@@ -88,6 +101,7 @@ public class FrontController extends HttpServlet {
 			
 			case "accounts":
 				as.guard(session);
+				
 				if(portions.length==1) { // If the URI is just 'accounts'
 					as.guard(session, "Employee", "Admin"); // Checks if employee or admin
 					List<AbstractAccount> accounts = ac.findAll(); // Get all accounts
@@ -96,7 +110,8 @@ public class FrontController extends HttpServlet {
 				}
 				switch(portions[1]) {
 				case "status": 
-					//TODO Find all accounts with a specific 'statusId' in portions[2]
+					// Find all accounts with a specific 'statusId' in portions[2]
+					
 					as.guard(session, "Employee", "Admin"); // Check if they have permission first
 					
 					try {
@@ -108,28 +123,51 @@ public class FrontController extends HttpServlet {
 						
 					} catch(NumberFormatException e) {
 						rsp.setStatus(404);
-						message = new MessageTemplate("This is not a valid resource");
+						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
 					}
 					break;
 					
 				case "owner":
-					//TODO Find all accounts related to a specific 'ownerId' in portions[2]
-					
+					// Find all accounts related to a specific 'ownerId' in portions[2]
+					int userId = -99; // Dummy value
+
 					try {
-						
-						int userId = Integer.parseInt(portions[2]); // Check what user ID to get
+
+						userId = Integer.parseInt(portions[2]); // Check what user ID to get
 						as.guard(session, userId, "Employee", "Admin"); // Check if they have permission first
+
+
+					} catch(NumberFormatException e) { // Catch in case there's not a valid resource
+						rsp.setStatus(404);
+						message = new MessageTemplate("Resource not found");
+						rsp.getWriter().println(om.writeValueAsString(message));
+					}
+
+					if(req.getQueryString() != null) { // If there's a query string
+
+						try {
+							String[] query = req.getQueryString().split("="); // First should be statusId, second is the id
+							int statusId = Integer.parseInt(query[1]); // Try to parse it, should be status
+							
+							List<AbstractAccount> results = ac.findByOwnerAndStatus(userId, statusId); // Fetch the list
+							rsp.setStatus(200); // OK
+							rsp.getWriter().println(om.writeValueAsString(results)); // Print results
+							
+						} catch (NumberFormatException e) {
+							rsp.setStatus(404);
+							message = new MessageTemplate("Resource not found");
+							rsp.getWriter().println(om.writeValueAsString(message));
+						}
+					} else {
+						
 						List<AbstractAccount> accounts = ac.findByOwner(userId); // grab the list of associated accounts
 						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
 						break;
-						
-					} catch(NumberFormatException e) {
-						rsp.setStatus(404);
-						message = new MessageTemplate("This is not a valid resource");
-						rsp.getWriter().println(om.writeValueAsString(message));
 					}
-					break;
+					
+					
+					
 				default:
 					try {
 						int accountId = Integer.parseInt(portions[1]); // Parse our account ID

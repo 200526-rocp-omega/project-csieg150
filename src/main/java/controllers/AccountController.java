@@ -66,4 +66,13 @@ public class AccountController {
 		// Give all savings accounts "numOfMonths" amount of interest.
 		as.passTime(numOfMonths);
 	}
+	
+	public List<AbstractAccount> findByOwnerAndStatus(int userId, int statusId){
+		// Find Accounts belonging to the specified userId with a specific status
+		List<AbstractAccount> results =  as.findByStatusAndOwner(userId, statusId);
+		if(results.isEmpty()) {
+			return null; // If no results just return null
+		}
+		return results;
+	}
 }
