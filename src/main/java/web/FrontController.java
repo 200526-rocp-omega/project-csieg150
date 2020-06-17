@@ -28,6 +28,7 @@ import templates.MessageTemplate;
 import templates.PassTimeTemplate;
 import templates.PostAccountTemplate;
 import templates.TransferTemplate;
+import templates.UpgradeUserTemplate;
 
 @SuppressWarnings("serial")
 public class FrontController extends HttpServlet {
@@ -154,12 +155,12 @@ public class FrontController extends HttpServlet {
 							rsp.setStatus(200); // OK
 							rsp.getWriter().println(om.writeValueAsString(results)); // Print results
 							
-						} catch (NumberFormatException e) {
+						} catch (NumberFormatException e) { //Invalid parse
 							rsp.setStatus(404);
 							message = new MessageTemplate("Resource not found");
 							rsp.getWriter().println(om.writeValueAsString(message));
 						}
-					} else {
+					} else { // If no query string, then just grab the specified ID
 						
 						List<AbstractAccount> accounts = ac.findByOwner(userId); // grab the list of associated accounts
 						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
@@ -168,8 +169,9 @@ public class FrontController extends HttpServlet {
 					
 					
 					
-				default:
-					try {
+				default: // If not accounts/status or accounts/owner
+					
+					try { // Try to parse from accounts/(accountId)
 						int accountId = Integer.parseInt(portions[1]); // Parse our account ID
 						
 						if(!(ac.isOwner(session, accountId))) { // If our current user isn't a listed owner
@@ -388,6 +390,25 @@ public class FrontController extends HttpServlet {
 			
 			switch(portions[0]) {
 			case "users":
+				
+				if(req.getQueryString().equals("upgrade")) { // If they PUT to users?upgrade
+					
+					AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser"); //Get the user
+					
+					if(currentuser.getRole().getRoleId() > 1) { // If not a 'Standard' user
+						
+						UpgradeUserTemplate userToUpgrade = om.readValue(req.getReader(), UpgradeUserTemplate.class); // Read the PUT
+						
+						as.guard(session, userToUpgrade.getUserId(), "Admin"); // If the current user is upgrading their account or an admin
+
+						uc.upgradeUser(userToUpgrade.getUserId(),userToUpgrade.getAccountId(), ac);
+						rsp.setStatus(200); // OK
+						message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
+						rsp.getWriter().println(om.writeValueAsString(message));
+					}
+					
+				}
+				
 				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
 				
 				as.guard(session, u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin

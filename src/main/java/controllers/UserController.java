@@ -1,9 +1,8 @@
 package controllers;
 
-import java.io.IOException;
+
 import java.util.List;
 
-import javax.servlet.ServletException;
 
 import Service.UserService;
 import models.AbstractUser;
@@ -11,8 +10,7 @@ import models.AbstractUser;
 public class UserController {
 private UserService us = new UserService(); // Lets us access User Service methods 
 	
-	public AbstractUser accessUser(int id) 
-			throws ServletException, IOException{ // Fetched when the page is loaded normally
+	public AbstractUser accessUser(int id) { // Fetched when the page is loaded normally
 		
 		return us.findByID(id);
 	}
@@ -27,5 +25,9 @@ private UserService us = new UserService(); // Lets us access User Service metho
 	
 	public AbstractUser insert(AbstractUser u) {
 		return us.insert(u);
+	}
+	
+	public void upgradeUser(int userId, int accountId) {
+		
 	}
 }
