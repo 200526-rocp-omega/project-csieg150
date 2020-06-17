@@ -100,6 +100,7 @@ public class FrontController extends HttpServlet {
 					// If not accessing a specific user, allow Employee or Admin to see list of all users.
 					as.guard(session, "Employee", "Admin");
 					List<AbstractUser> users = uc.findAll();
+					rsp.setStatus(200); // OK
 					rsp.getWriter().println(om.writeValueAsString(users));
 				}
 				break;
