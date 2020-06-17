@@ -9,8 +9,8 @@ import models.AbstractUser;
 public class AuthService {
 	public void guard(HttpSession session, String...roles) { //Check if the current user is in our specified allowed roles
 		
-		AbstractUser currentUser = (AbstractUser) session.getAttribute("currentUser");
-		String userRole = currentUser.getRole().getRole(); // Find the role of our user.
+		AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser");
+		String userRole = currentuser.getRole().getRole(); // Find the role of our user.
 		
 		for(String role : roles) {
 			if(userRole.equals(role)) {
@@ -23,11 +23,11 @@ public class AuthService {
 	
 	public void guard(HttpSession session, int id, String...roles) { // Check if UserID matches currentuser's id or in allowed roles 
 		
-		AbstractUser currentUser = (AbstractUser) session.getAttribute("currentUser");
+		AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser");
 		
-		if(id == currentUser.getUserId()) return; // If the user has the appropriate ID, they can access the information
+		if(id == currentuser.getUserId()) return; // If the user has the appropriate ID, they can access the information
 		
-		String userRole = currentUser.getRole().getRole(); // Find the role
+		String userRole = currentuser.getRole().getRole(); // Find the role
 		
 		for(String role : roles) {
 			if(userRole.equals(role)) {
@@ -39,7 +39,7 @@ public class AuthService {
 	}
 	
 	public void guard(HttpSession session) { // Checks if user is logged in or not
-		if(session == null || session.getAttribute("currentUser") == null) {
+		if(session == null || session.getAttribute("currentuser") == null) {
 			throw new NotLoggedInException();
 		}
 	}
