@@ -48,7 +48,9 @@ public class FrontController extends HttpServlet {
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "").toLowerCase(); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
-		MessageTemplate message = null;
+		MessageTemplate message = new MessageTemplate("Resource not found"); // Default message
+		
+		rsp.setStatus(404); // Default Status code
 		
 		try {
 			switch(portions[0]) {
@@ -185,13 +187,12 @@ public class FrontController extends HttpServlet {
 							as.guard(session, "Employee", "Admin"); // Check if they are employee or admin
 						}
 						// By passing through they're either an owner or an employee/admin
+						rsp.setStatus(200);
 						AbstractAccount account = ac.findAccountById(accountId); // Grab the account
 						rsp.getWriter().println(om.writeValueAsString(account)); // Print the value.
 						
 					} catch(NumberFormatException e) {
 						
-						rsp.setStatus(404);
-						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
 						
 					}
@@ -199,8 +200,6 @@ public class FrontController extends HttpServlet {
 				break;
 				
 			default: 
-				rsp.setStatus(404); // Unable to be found
-				message = new MessageTemplate("Resource not found");
 				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 		} catch (NotLoggedInException e) { //If user isn't logged in
@@ -237,7 +236,9 @@ public class FrontController extends HttpServlet {
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "").toLowerCase(); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
-		MessageTemplate message = null;
+		
+		MessageTemplate message = new MessageTemplate("Resource not found"); // Default message
+		rsp.setStatus(404); // Default Status code
 		
 		try {
 			
@@ -266,18 +267,21 @@ public class FrontController extends HttpServlet {
 
 				if(portions.length == 1) { // Just /accounts - posting there is for creating accounts or passtime, depending on query
 					
-					if(req.getQueryString().toLowerCase().equals("passtime")) { // if /accounts?passTime
-						
-						// Accrue an amount of compound interest per month 
-						as.guard(session, "Admin"); //Check if user is admin
-						PassTimeTemplate passTime =  om.readValue(req.getReader(),PassTimeTemplate.class); // Grab our template from the body
-						ac.passTime(passTime.getNumOfMonths()); //Pass the time by the specified number of months
-						
-						rsp.setStatus(200);//Ok
-						message = new MessageTemplate(passTime.getNumOfMonths() + " months of compound interest have been accrued on all Savings accounts");
-						rsp.getWriter().println(om.writeValueAsString(message));
-						return;
+					if(req.getQueryString() != null) {
+						if(req.getQueryString().toLowerCase().equals("passtime")) { // if /accounts?passTime
+							
+							// Accrue an amount of compound interest per month 
+							as.guard(session, "Admin"); //Check if user is admin
+							PassTimeTemplate passTime =  om.readValue(req.getReader(),PassTimeTemplate.class); // Grab our template from the body
+							ac.passTime(passTime.getNumOfMonths()); //Pass the time by the specified number of months
+							
+							rsp.setStatus(200);//Ok
+							message = new MessageTemplate(passTime.getNumOfMonths() + " months of compound interest have been accrued on all Savings accounts");
+							rsp.getWriter().println(om.writeValueAsString(message));
+							return;
+						}
 					}
+					
 					
 					PostAccountTemplate postedAccount = om.readValue(req.getReader(), PostAccountTemplate.class); // Get values
 					int userId = postedAccount.getUserId(); // Find associated userID
@@ -300,8 +304,6 @@ public class FrontController extends HttpServlet {
 						
 					} catch (NumberFormatException e) {
 						
-						rsp.setStatus(404);
-						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
 						
 					}
@@ -353,21 +355,15 @@ public class FrontController extends HttpServlet {
 						break;
 					
 					default:
-						rsp.setStatus(404);
-						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
 					}
 				} else {
-					rsp.setStatus(404);
-					message = new MessageTemplate("Resource not found");
 					rsp.getWriter().println(om.writeValueAsString(message));
 				}
 				
 				break;
 				
 			default:
-				rsp.setStatus(404);
-				message = new MessageTemplate("Resource not found");
 				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 			
@@ -412,7 +408,8 @@ public class FrontController extends HttpServlet {
 		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "").toLowerCase(); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
-		MessageTemplate message = null;
+		MessageTemplate message = new MessageTemplate("Resource not found");
+		rsp.setStatus(404);
 		
 		try {
 			as.guard(session); // Ensures our user is logged in, otherwise they can't access
@@ -420,24 +417,26 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 			case "users":
 				
-				if(req.getQueryString().toLowerCase().equals("upgrade")) { // If they PUT to users?upgrade
-					
-					AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser"); //Get the user
-					
-					if(currentuser.getRole().getRoleId() > 1) { // If not a 'Standard' user
+				if(req.getQueryString() != null) {
+					if(req.getQueryString().toLowerCase().equals("upgrade")) { // If they PUT to users?upgrade
 						
-						UserAccountTemplate userToUpgrade = om.readValue(req.getReader(), UserAccountTemplate.class); // Read the PUT
+						AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser"); //Get the user
 						
-						as.guard(session, userToUpgrade.getUserId(), "Admin"); // If the current user is upgrading their account or an admin
+						if(currentuser.getRole().getRoleId() > 1) { // If not a 'Standard' user
+							
+							UserAccountTemplate userToUpgrade = om.readValue(req.getReader(), UserAccountTemplate.class); // Read the PUT
+							
+							as.guard(session, userToUpgrade.getUserId(), "Admin"); // If the current user is upgrading their account or an admin
 
-						uc.upgradeUser(userToUpgrade.getUserId(),userToUpgrade.getAccountId(), ac);
-						rsp.setStatus(200); // OK
-						message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
-						rsp.getWriter().println(om.writeValueAsString(message));
-					} else {
-						throw new AuthorizationException(); // Not authorized to do this
+							uc.upgradeUser(userToUpgrade.getUserId(),userToUpgrade.getAccountId(), ac);
+							rsp.setStatus(200); // OK
+							message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
+							rsp.getWriter().println(om.writeValueAsString(message));
+						} else {
+							throw new AuthorizationException(); // Not authorized to do this
+						}
+						
 					}
-					
 				}
 				
 				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
@@ -450,19 +449,21 @@ public class FrontController extends HttpServlet {
 				
 			case "accounts":
 				
-				if(req.getQueryString().toLowerCase().equals("addjointuser")) { // If a Premium / Employee / Admin wants to add a user to an account
-					
-					as.guard(session, "Premium","Employee","Admin"); // First check they are an allowed role
-					
-					UserAccountTemplate putUserAccount = om.readValue(req.getReader(), UserAccountTemplate.class); // Get PUT information
-					
-					AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser");
-					
-					ac.addUserAccount(putUserAccount, currentuser.getUserId());
-					
-					rsp.setStatus(200); // OK
-					message = new MessageTemplate("User #" + putUserAccount.getUserId() + " added as joint owner to Account #" + putUserAccount.getAccountId());
-					break;
+				if(req.getQueryString() !=  null) {
+					if(req.getQueryString().toLowerCase().equals("addjointuser")) { // If a Premium / Employee / Admin wants to add a user to an account
+						
+						as.guard(session, "Premium","Employee","Admin"); // First check they are an allowed role
+						
+						UserAccountTemplate putUserAccount = om.readValue(req.getReader(), UserAccountTemplate.class); // Get PUT information
+						
+						AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser");
+						
+						ac.addUserAccount(putUserAccount, currentuser.getUserId());
+						
+						rsp.setStatus(200); // OK
+						message = new MessageTemplate("User #" + putUserAccount.getUserId() + " added as joint owner to Account #" + putUserAccount.getAccountId());
+						break;
+					}
 				}
 				
 				AbstractAccount account = om.readValue(req.getReader(), AbstractAccount.class); // Pull the account info from the request
@@ -473,8 +474,7 @@ public class FrontController extends HttpServlet {
 				break;
 				
 			default:
-				rsp.setStatus(404);
-				message = new MessageTemplate("Resource not found");
+				
 				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 			
