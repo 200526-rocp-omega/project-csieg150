@@ -5,12 +5,15 @@ import java.util.List;
 import javax.servlet.http.HttpSession;
 
 import Service.AccountService;
+import Service.UserService;
 import exceptions.FailedStatementException;
 import models.AbstractAccount;
 import models.AbstractUser;
+import models.UserAccount;
 import templates.BalanceTemplate;
 import templates.PostAccountTemplate;
 import templates.TransferTemplate;
+import templates.UserAccountTemplate;
 
 public class AccountController {
 	private static AccountService as = new AccountService();
@@ -39,9 +42,32 @@ public class AccountController {
 	
 	public AbstractAccount insert(PostAccountTemplate postedAccount) {
 		// Take info from posted account object and add records to the appropriate tables.
+		
 		if(as.insert(postedAccount.toAccount()) < 1) throw new FailedStatementException(); // Insert into record Account table
 		as.addUserAccount(postedAccount.getUserId(), postedAccount.getAccountId()); // Add relationship to Users-Accounts table
 		return this.findAccountById(postedAccount.getAccountId());
+	}
+	
+	public void addUserAccount(UserAccountTemplate userAccount, int currentUserId) {
+		// Adds a UserAccount pair to our USERS-ACCOUNTS table
+		
+		if(as.userIsOwner(currentUserId, userAccount.getAccountId())) { // If our USER is an owner of the account
+			as.addUserAccount(userAccount.getUserId(), userAccount.getAccountId()); // Add the new joint user to the account
+			
+		} else {
+			
+			UserService us = new UserService(); // We will need to find the Roles of owners, so we call user services
+			
+			for(UserAccount owner : as.ownersOfAccount(userAccount.getAccountId())) { // For every User/Account pair with the right account ID
+				
+				AbstractUser user = us.findByID(owner.getUserId()); // Get the user information from our User service
+				if(user.getRole().getRoleId() > 1) { // If the owner is Premium / Employee / Admin
+					as.addUserAccount(userAccount.getUserId(), userAccount.getAccountId()); // Add the pair
+					return; // exit the method, we don't want to add multiple accounts on accident.
+				}
+			}
+		}
+		
 	}
 	
 	public AbstractAccount update(AbstractAccount account) { // Update the selected account 

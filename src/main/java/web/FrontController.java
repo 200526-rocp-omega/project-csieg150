@@ -423,12 +423,21 @@ public class FrontController extends HttpServlet {
 				
 				as.guard(session, u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin
 				AbstractUser user = uc.updateUser(u);
+				rsp.setStatus(200); // OK
 				rsp.getWriter().println(om.writeValueAsString(user)); // Returns the updated user if no exception thrown.
 				break;
 				
 			case "accounts":
 				
-				if(req.getQueryString().toLowerCase().equals("addjointuser")) {
+				if(req.getQueryString().toLowerCase().equals("addjointuser")) { // If a Premium / Employee / Admin wants to add a user to an account
+					
+					as.guard(session, "Premium","Employee","Admin"); // First check they are an allowed role
+					
+					UserAccountTemplate putUserAccount = om.readValue(req.getReader(), UserAccountTemplate.class); // Get PUT information
+					
+					AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser");
+					
+					ac.addUserAccount(putUserAccount, currentuser.getUserId());
 					
 				}
 				
