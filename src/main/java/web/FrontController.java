@@ -332,7 +332,8 @@ public class FrontController extends HttpServlet {
 						
 					case "deposit":
 						
-						BalanceTemplate deposit = om.readValue(req.getReader(), BalanceTemplate.class); // Fetch our account ID and amount to change
+						AmountTemplate amountDeposit = om.readValue(req.getReader(), AmountTemplate.class); // Fetch our account ID and amount to change
+						BalanceTemplate deposit = new BalanceTemplate(accountId,amountDeposit.getAmount());
 						
 						if(ac.isOwner(session, deposit.getAccountId()) == false) { // If the user is not an owner of the account
 							as.guard(session, "Admin"); // Check if they are an admin
