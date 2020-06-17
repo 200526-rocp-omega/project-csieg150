@@ -9,10 +9,10 @@ import models.StandardAccount;
 
 public class PostAccountTemplate{
 	private int userId;
-	int accountId;
-	double balance;
-	AccountStatus status;
-	AccountType type;
+	private int accountId;
+	private double balance;
+	private int statusId;
+	private int typeId;
 
 	public PostAccountTemplate() {
 		super();
@@ -20,13 +20,13 @@ public class PostAccountTemplate{
 
 
 
-	public PostAccountTemplate(int userId, int accountId, double balance, AccountStatus status, AccountType type) {
+	public PostAccountTemplate(int userId, int accountId, double balance, int statusId, int typeId) {
 		super();
 		this.userId = userId;
 		this.accountId = accountId;
 		this.balance = balance;
-		this.status = status;
-		this.type = type;
+		this.statusId = statusId;
+		this.typeId = typeId;
 	}
 
 
@@ -67,33 +67,68 @@ public class PostAccountTemplate{
 
 
 
-	public AccountStatus getStatus() {
-		return status;
+	public int getStatusId() {
+		return statusId;
 	}
 
 
 
-	public void setStatus(AccountStatus status) {
-		this.status = status;
+	public void setStatusId(int status) {
+		this.statusId = status;
 	}
 
 
 
-	public AccountType getType() {
-		return type;
+	public int getTypeId() {
+		return typeId;
 	}
 
 
 
-	public void setType(AccountType type) {
-		this.type = type;
+	public void setTypeId(int type) {
+		this.typeId = type;
+	}
+
+	public AbstractAccount toAccount() {
+		AccountStatus status = null;
+		AccountType type = null;
+		switch(this.statusId) {
+		case 1:
+			status = new AccountStatus(1,"Pending");
+			break;
+		case 2:
+			status = new AccountStatus(2,"Open");
+			break;
+		case 3:
+			status = new AccountStatus(3,"Closed");
+			break;
+		case 4:
+			status = new AccountStatus(4,"Denied");
+			break;
+		default:
+			status = new AccountStatus(1,"Pending");
+			break;
+		}
+		
+		switch(this.typeId) {
+		case 1:
+			type = new AccountType(1,"Checking");
+			break;
+		case 2:
+			type = new AccountType(2,"Savings");
+			break;
+		default:
+			type = new AccountType(1,"Checking");
+			break;
+		}
+		return new StandardAccount(accountId,balance,status,type);
 	}
 
 
 
 	@Override
 	public int hashCode() {
-		return Objects.hash(accountId, balance, status, type, userId);
+		return Objects.hash(accountId, balance, statusId, typeId, userId);
 	}
 
 
@@ -109,7 +144,7 @@ public class PostAccountTemplate{
 		PostAccountTemplate other = (PostAccountTemplate) obj;
 		return accountId == other.accountId
 				&& Double.doubleToLongBits(balance) == Double.doubleToLongBits(other.balance)
-				&& Objects.equals(status, other.status) && Objects.equals(type, other.type) && userId == other.userId;
+				&& statusId == other.statusId && typeId == other.typeId && userId == other.userId;
 	}
 
 
@@ -117,12 +152,10 @@ public class PostAccountTemplate{
 	@Override
 	public String toString() {
 		return "PostAccountTemplate [userId=" + userId + ", accountId=" + accountId + ", balance=" + balance
-				+ ", status=" + status + ", type=" + type + "]";
+				+ ", statusId=" + statusId + ", typeId=" + typeId + "]";
 	}
-
-	public AbstractAccount toAccount() {
-		return new StandardAccount(accountId,balance,status,type);
-	}
+	
+	
 
 	
 }

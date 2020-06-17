@@ -27,6 +27,7 @@ import templates.BalanceTemplate;
 import templates.MessageTemplate;
 import templates.PassTimeTemplate;
 import templates.PostAccountTemplate;
+import templates.PostUserTemplate;
 import templates.TransferTemplate;
 import templates.UserAccountTemplate;
 
@@ -54,7 +55,7 @@ public class FrontController extends HttpServlet {
 			
 			case "":
 				rsp.setStatus(200); // 200 OK
-				message = new MessageTemplate("This is / . 'post' to /login with your credentials to access more of the site");
+				message = new MessageTemplate("This is / . 'post' to /users?login with your credentials to access more of the site");
 				rsp.getWriter().println(om.writeValueAsString(message));
 				break;			
 				
@@ -72,6 +73,7 @@ public class FrontController extends HttpServlet {
 						
 					// No default case just yet - we'll have more opportunities for querystring later
 					}
+					return;
 				}
 				
 				as.guard(session);
@@ -203,7 +205,7 @@ public class FrontController extends HttpServlet {
 			}
 		} catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			message = new MessageTemplate("You are not logged in. Go to /login and POST your credentials");
+			message = new MessageTemplate("You are not logged in. Go to /users?login and POST your credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
@@ -219,6 +221,7 @@ public class FrontController extends HttpServlet {
 			rsp.setStatus(400);
 			message = new MessageTemplate("Unknown Error. Consult the stack trace for more details. Make sure any POSTed info matches what's expected, or if updating info that the info exists to begin with.");
 			rsp.getWriter().println(om.writeValueAsString(message));
+			e.printStackTrace();
 		}
 		
 		
@@ -237,7 +240,7 @@ public class FrontController extends HttpServlet {
 		MessageTemplate message = null;
 		
 		try {
-			if(portions[0].equals("user") && req.getQueryString().toLowerCase().equals("login")) {
+			if(portions[0].equals("users") && req.getQueryString().toLowerCase().equals("login")) {
 				lc.doPost(req, rsp, message, om);
 				return;
 			}
@@ -249,10 +252,10 @@ public class FrontController extends HttpServlet {
 			case "user":
 				// insert into the user table and return the stuff.
 				as.guard(session, "Employee","Admin"); //Rather have it so employees are the ones to instantiate an account. This isn't gmail, it's a bank
-				AbstractUser postedUser = om.readValue(req.getReader(), AbstractUser.class);
-				postedUser = uc.insert(postedUser);
+				PostUserTemplate postedUser = om.readValue(req.getReader(), PostUserTemplate.class);				
+				AbstractUser insertedUser = uc.insert(postedUser.toUser());
 				rsp.setStatus(201); // 201 created
-				rsp.getWriter().println(om.writeValueAsString(postedUser));
+				rsp.getWriter().println(om.writeValueAsString(insertedUser));
 				break;
 			
 			case "accounts":
@@ -357,11 +360,16 @@ public class FrontController extends HttpServlet {
 				}
 				
 				break;
+				
+			default:
+				rsp.setStatus(404);
+				message = new MessageTemplate("Resource not found");
+				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			message = new MessageTemplate("You are not logged in. Go to /login and POST your credentials");
+			message = new MessageTemplate("You are not logged in. Go to /users?login and POST your credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		} catch (InvalidLoginException e) { // If they put in bad credentials
@@ -386,6 +394,7 @@ public class FrontController extends HttpServlet {
 			rsp.setStatus(400);
 			message = new MessageTemplate("Unknown Error. Consult the stack trace for more details. Make sure any POSTed info matches what's expected, or if updating info that the info exists to begin with.");
 			rsp.getWriter().println(om.writeValueAsString(message));
+			e.printStackTrace();
 		}
 
 	}
@@ -449,6 +458,7 @@ public class FrontController extends HttpServlet {
 					
 					rsp.setStatus(200); // OK
 					message = new MessageTemplate("User #" + putUserAccount.getUserId() + " added as joint owner to Account #" + putUserAccount.getAccountId());
+					break;
 				}
 				
 				AbstractAccount account = om.readValue(req.getReader(), AbstractAccount.class); // Pull the account info from the request
@@ -456,12 +466,17 @@ public class FrontController extends HttpServlet {
 				AbstractAccount updatedAccount = ac.update(account);
 				rsp.setStatus(200); // 200 OK
 				rsp.getWriter().println(om.writeValueAsString(updatedAccount)); // Return the updated accounts
+				break;
 				
+			default:
+				rsp.setStatus(404);
+				message = new MessageTemplate("Resource not found");
+				rsp.getWriter().println(om.writeValueAsString(message));
 			}
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in
 			rsp.setStatus(401);
-			message = new MessageTemplate("You are not logged in. Go to /login and POST your credentials");
+			message = new MessageTemplate("You are not logged in. Go to /users?login and POST your credentials");
 			rsp.getWriter().println(om.writeValueAsString(message));
 			
 		}  catch (FailedStatementException e) { // If there's some kind of unexpected SQL result (like update not hitting any rows)
@@ -477,6 +492,7 @@ public class FrontController extends HttpServlet {
 			rsp.setStatus(400);
 			message = new MessageTemplate("Unknown Error. Consult the stack trace for more details. Make sure any POSTed info matches what's expected, or if updating info that the info exists to begin with.");
 			rsp.getWriter().println(om.writeValueAsString(message));
+			e.printStackTrace();
 		}
 	}
 }

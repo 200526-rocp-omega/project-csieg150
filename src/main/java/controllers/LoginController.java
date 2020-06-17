@@ -32,7 +32,7 @@ public class LoginController {
 			message = new MessageTemplate("You are logged in as user: " + currentUser.toString());
 			writer.println(om.writeValueAsString(message)); // They're logged in
 		} else {
-			message = new MessageTemplate("You need to login. Post your credentials to /login");
+			message = new MessageTemplate("You need to login. Post your credentials to /users?login");
 			writer.println(om.writeValueAsString(message)); // They're not logged in
 		}
 	}
@@ -46,7 +46,7 @@ public class LoginController {
 		HttpSession session = req.getSession(); // Creates a session 
 		if(session.getAttribute("currentUser") != null) { // Checks if logged in
 			rsp.setStatus(400); // bad request
-			message = new MessageTemplate("Logged in already - GET from /logout to log out.");
+			message = new MessageTemplate("Logged in already - GET from /users?logout to log out.");
 			writer.println(om.writeValueAsString(message));
 			return; // We are already logged in so no need to to it again.
 		}
@@ -81,7 +81,7 @@ public class LoginController {
 		} 
 		// If they don't have a session:
 		rsp.setStatus(400); // Bad request
-		message = new MessageTemplate("You aren't logged in to begin with. POST your credentials to /login");
+		message = new MessageTemplate("You aren't logged in to begin with!");
 		writer.println(om.writeValueAsString(message));
 	}
 }
