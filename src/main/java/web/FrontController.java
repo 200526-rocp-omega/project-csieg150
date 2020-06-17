@@ -182,6 +182,7 @@ public class FrontController extends HttpServlet {
 					try { // Try to parse from accounts/(accountId)
 						
 						int accountId = Integer.parseInt(portions[1]); // Parse our account ID
+						System.out.println(accountId);
 						
 						if(!(ac.isOwner(session, accountId))) { // If our current user isn't a listed owner
 							as.guard(session, "Employee", "Admin"); // Check if they are employee or admin
@@ -193,7 +194,7 @@ public class FrontController extends HttpServlet {
 						
 					} catch(NumberFormatException e) {
 						
-						rsp.getWriter().println(om.writeValueAsString(message));
+						rsp.getWriter().println(om.writeValueAsString(message)); // 404 resource not found
 						
 					}
 				}
