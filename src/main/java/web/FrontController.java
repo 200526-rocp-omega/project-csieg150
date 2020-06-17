@@ -44,7 +44,7 @@ public class FrontController extends HttpServlet {
 		
 		rsp.setContentType("application/json");
 			
-		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
+		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "").toLowerCase(); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
 		MessageTemplate message = null;
@@ -60,7 +60,7 @@ public class FrontController extends HttpServlet {
 				
 			case "users":
 				if(req.getQueryString() != null) {
-					switch(req.getQueryString()) {
+					switch(req.getQueryString().toLowerCase()) {
 					
 					case "login":
 						lc.doGet(req, rsp, message, om);
@@ -140,15 +140,17 @@ public class FrontController extends HttpServlet {
 
 
 					} catch(NumberFormatException e) { // Catch in case there's not a valid resource
+						
 						rsp.setStatus(404);
 						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
+						
 					}
 
 					if(req.getQueryString() != null) { // If there's a query string
 
 						try {
-							String[] query = req.getQueryString().split("="); // First should be statusId, second is the id
+							String[] query = req.getQueryString().toLowerCase().split("="); // First should be statusId, second is the id
 							int statusId = Integer.parseInt(query[1]); // Try to parse it, should be status
 							
 							List<AbstractAccount> results = ac.findByOwnerAndStatus(userId, statusId); // Fetch the list
@@ -160,11 +162,13 @@ public class FrontController extends HttpServlet {
 							message = new MessageTemplate("Resource not found");
 							rsp.getWriter().println(om.writeValueAsString(message));
 						}
+						
 					} else { // If no query string, then just grab the specified ID
 						
 						List<AbstractAccount> accounts = ac.findByOwner(userId); // grab the list of associated accounts
 						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
 						break;
+						
 					}
 					
 					
@@ -172,6 +176,7 @@ public class FrontController extends HttpServlet {
 				default: // If not accounts/status or accounts/owner
 					
 					try { // Try to parse from accounts/(accountId)
+						
 						int accountId = Integer.parseInt(portions[1]); // Parse our account ID
 						
 						if(!(ac.isOwner(session, accountId))) { // If our current user isn't a listed owner
@@ -180,10 +185,13 @@ public class FrontController extends HttpServlet {
 						// By passing through they're either an owner or an employee/admin
 						AbstractAccount account = ac.findAccountById(accountId); // Grab the account
 						rsp.getWriter().println(om.writeValueAsString(account)); // Print the value.
+						
 					} catch(NumberFormatException e) {
+						
 						rsp.setStatus(404);
-						message = new MessageTemplate("This is not a valid resource");
+						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
+						
 					}
 				}
 				break;
@@ -219,13 +227,13 @@ public class FrontController extends HttpServlet {
 		
 		rsp.setContentType("application/json");
 		
-		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
+		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "").toLowerCase(); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
 		MessageTemplate message = null;
 		
 		try {
-			if(portions[0].equals("user") && req.getQueryString().equals("login")) {
+			if(portions[0].equals("user") && req.getQueryString().toLowerCase().equals("login")) {
 				lc.doPost(req, rsp, message, om);
 				return;
 			}
@@ -247,7 +255,7 @@ public class FrontController extends HttpServlet {
 
 				if(portions.length == 1) { // Just /accounts - posting there is for creating accounts or passtime, depending on query
 					
-					if(req.getQueryString().equals("passTime")) { // if /accounts?passTime
+					if(req.getQueryString().toLowerCase().equals("passtime")) { // if /accounts?passTime
 						
 						// Accrue an amount of compound interest per month 
 						as.guard(session, "Admin"); //Check if user is admin
@@ -287,7 +295,7 @@ public class FrontController extends HttpServlet {
 						
 					}
 					
-					switch(req.getQueryString()) { // To make for more restful endpoints I want to involve query strings
+					switch(req.getQueryString().toLowerCase()) { // To make for more restful endpoints I want to involve query strings
 					
 					case "withdraw":
 						
@@ -380,7 +388,7 @@ public class FrontController extends HttpServlet {
 		
 		rsp.setContentType("application/json"); //Formats our output in responses to be JSON
 		
-		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", ""); //Determine where the 'get' is coming from. Removes leading 	project name
+		String URI = req.getRequestURI().replace("/rocp-project", "").replaceFirst("/", "").toLowerCase(); //Determine where the 'get' is coming from. Removes leading 	project name
 		String[] portions = URI.split("/");
 		HttpSession session = req.getSession();
 		MessageTemplate message = null;
@@ -391,7 +399,7 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 			case "users":
 				
-				if(req.getQueryString().equals("upgrade")) { // If they PUT to users?upgrade
+				if(req.getQueryString().toLowerCase().equals("upgrade")) { // If they PUT to users?upgrade
 					
 					AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser"); //Get the user
 					
@@ -405,6 +413,8 @@ public class FrontController extends HttpServlet {
 						rsp.setStatus(200); // OK
 						message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
 						rsp.getWriter().println(om.writeValueAsString(message));
+					} else {
+						throw new AuthorizationException(); // Not authorized to do this
 					}
 					
 				}
@@ -417,11 +427,17 @@ public class FrontController extends HttpServlet {
 				break;
 				
 			case "accounts":
+				
+				if(req.getQueryString().toLowerCase().equals("addjointuser")) {
+					
+				}
+				
 				AbstractAccount account = om.readValue(req.getReader(), AbstractAccount.class); // Pull the account info from the request
 				as.guard(session, "Admin"); // Only allow Admins to perform this kind of update.
 				AbstractAccount updatedAccount = ac.update(account);
 				rsp.setStatus(200); // 200 OK
 				rsp.getWriter().println(om.writeValueAsString(updatedAccount)); // Return the updated accounts
+				
 			}
 			
 		}catch (NotLoggedInException e) { //If user isn't logged in

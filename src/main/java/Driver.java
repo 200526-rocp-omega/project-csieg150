@@ -11,12 +11,8 @@ public class Driver {
 
 	public static void main(String[] args) {
 		
-		AccountService as = new AccountService();
-		
-		System.out.println(as.findByType(2));
-		as.passTime(2);
-		
-		System.out.println(as.findByType(2));
+		String s = "hi I'M n/oT aLl 7S";
+		System.out.println(s.toLowerCase());
 	}
 
 }
