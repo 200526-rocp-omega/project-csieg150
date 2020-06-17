@@ -37,7 +37,6 @@ public class AccountController {
 	public boolean isOwner(HttpSession session, int accountId) {
 		// Checks our current user's ID and see if it matches any owner ids from the provided account ID
 		AbstractUser u = (AbstractUser) session.getAttribute("currentuser");
-		System.out.println(u);
 		return as.userIsOwner(u.getUserId(), accountId);
 	}
 	

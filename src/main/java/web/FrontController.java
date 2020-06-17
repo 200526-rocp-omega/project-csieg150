@@ -146,8 +146,6 @@ public class FrontController extends HttpServlet {
 
 					} catch(NumberFormatException e) { // Catch in case there's not a valid resource
 						
-						rsp.setStatus(404);
-						message = new MessageTemplate("Resource not found");
 						rsp.getWriter().println(om.writeValueAsString(message));
 						
 					}
@@ -170,8 +168,12 @@ public class FrontController extends HttpServlet {
 						
 					} else { // If no query string, then just grab the specified ID
 						
+						
 						List<AbstractAccount> accounts = ac.findByOwner(userId); // grab the list of associated accounts
+						
+						rsp.getWriter().println(om.writeValueAsString(ac.findByOwner(userId))); // Write to HttpServletResponse
 						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
+						rsp.setStatus(200); // ok
 						break;
 						
 					}
@@ -183,7 +185,7 @@ public class FrontController extends HttpServlet {
 					try { // Try to parse from accounts/(accountId)
 						
 						int accountId = Integer.parseInt(portions[1]); // Parse our account ID
-						System.out.println(accountId);
+						
 						
 						if(!(ac.isOwner(session, accountId))) { // If our current user isn't a listed owner
 							as.guard(session, "Employee", "Admin"); // Check if they are employee or admin
