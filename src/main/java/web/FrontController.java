@@ -215,6 +215,10 @@ public class FrontController extends HttpServlet {
 			rsp.setStatus(401);
 			message = new MessageTemplate("You are not authorized");
 			rsp.getWriter().println(om.writeValueAsString(message));
+		} catch (Exception e) { // If all else fails, might be SQLException or Jackson's ObjectMapper exceptions, maybe IOException or something else
+			rsp.setStatus(400);
+			message = new MessageTemplate("Unknown Error. Consult the stack trace for more details. Make sure any POSTed info matches what's expected, or if updating info that the info exists to begin with.");
+			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 		
 		
@@ -378,6 +382,10 @@ public class FrontController extends HttpServlet {
 			rsp.setStatus(400);
 			message = new MessageTemplate("The amount must be greater than $0. Any withdraws or transfers must be no greater than the source account balance");
 			rsp.getWriter().println(om.writeValueAsString(message));
+		} catch (Exception e) { // If all else fails, might be SQLException or Jackson's ObjectMapper exceptions or something else
+			rsp.setStatus(400);
+			message = new MessageTemplate("Unknown Error. Consult the stack trace for more details. Make sure any POSTed info matches what's expected, or if updating info that the info exists to begin with.");
+			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 
 	}
@@ -439,6 +447,8 @@ public class FrontController extends HttpServlet {
 					
 					ac.addUserAccount(putUserAccount, currentuser.getUserId());
 					
+					rsp.setStatus(200); // OK
+					message = new MessageTemplate("User #" + putUserAccount.getUserId() + " added as joint owner to Account #" + putUserAccount.getAccountId());
 				}
 				
 				AbstractAccount account = om.readValue(req.getReader(), AbstractAccount.class); // Pull the account info from the request
@@ -462,6 +472,10 @@ public class FrontController extends HttpServlet {
 		} catch (AuthorizationException e) { // If the current user doesn't meet our authorization conditions.
 			rsp.setStatus(401);
 			message = new MessageTemplate("You are not authorized");
+			rsp.getWriter().println(om.writeValueAsString(message));
+		} catch (Exception e) { // If all else fails, might be SQLException or Jackson's ObjectMapper exceptions or something else
+			rsp.setStatus(400);
+			message = new MessageTemplate("Unknown Error. Consult the stack trace for more details. Make sure any POSTed info matches what's expected, or if updating info that the info exists to begin with.");
 			rsp.getWriter().println(om.writeValueAsString(message));
 		}
 	}
