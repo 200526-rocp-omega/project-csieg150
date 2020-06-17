@@ -5,7 +5,10 @@ import java.util.List;
 
 
 import Service.UserService;
+import exceptions.FailedStatementException;
 import models.AbstractUser;
+import models.Role;
+import templates.TransferTemplate;
 
 public class UserController {
 private UserService us = new UserService(); // Lets us access User Service methods 
@@ -27,7 +30,14 @@ private UserService us = new UserService(); // Lets us access User Service metho
 		return us.insert(u);
 	}
 	
-	public void upgradeUser(int userId, int accountId) {
+	public void upgradeUser(int userId, int accountId, AccountController ac) {
+		AbstractUser user = us.findByID(userId);
+		if(user.getRole().getRoleId() < 1) {
+			throw new FailedStatementException(); // If the user account is already premium / employee / admin, they shouldn't be accessing.
+		}
+		ac.transfer(new TransferTemplate(userId,5,100)); // Try to transfer from the given ID to our Admin account (the 'bank' account
 		
+		user.setRole(new Role(2,"Premium"));
+		us.update(user);
 	}
 }
