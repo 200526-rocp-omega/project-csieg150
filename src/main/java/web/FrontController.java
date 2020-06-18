@@ -440,7 +440,11 @@ public class FrontController extends HttpServlet {
 						rsp.setStatus(200); // OK
 						message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
 						rsp.getWriter().println(om.writeValueAsString(message));
-
+						
+						if(userToUpgrade.getUserId() == (((AbstractUser) session.getAttribute("currentuser")).getUserId())){
+							session.setAttribute("currentuser", uc.accessUser(userToUpgrade.getUserId()));
+						}
+						
 						return;
 					}
 				}
