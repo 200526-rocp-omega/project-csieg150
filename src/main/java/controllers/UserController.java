@@ -32,7 +32,7 @@ private UserService us = new UserService(); // Lets us access User Service metho
 	
 	public void upgradeUser(int userId, int accountId, AccountController ac) {
 		AbstractUser user = us.findByID(userId);
-		if(user.getRole().getRoleId() < 1) {
+		if(user.getRole().getRoleId() != 1) {
 			throw new FailedStatementException(); // If the user account is already premium / employee / admin, they shouldn't be accessing.
 		}
 		TransferTemplate transfer = new TransferTemplate(accountId,5,100);

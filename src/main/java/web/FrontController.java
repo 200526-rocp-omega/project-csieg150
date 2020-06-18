@@ -431,22 +431,16 @@ public class FrontController extends HttpServlet {
 				
 				if(req.getQueryString() != null) {
 					if(req.getQueryString().toLowerCase().equals("upgrade")) { // If they PUT to users?upgrade
-						
-						AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser"); //Get the user
-						
-						if(currentuser.getRole().getRoleId() > 1) { // If not a 'Standard' user
-							
-							UserAccountTemplate userToUpgrade = om.readValue(req.getReader(), UserAccountTemplate.class); // Read the PUT
-							
-							as.guard(session, userToUpgrade.getUserId(), "Admin"); // If the current user is upgrading their account or an admin
 
-							uc.upgradeUser(userToUpgrade.getUserId(),userToUpgrade.getAccountId(), ac);
-							rsp.setStatus(200); // OK
-							message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
-							rsp.getWriter().println(om.writeValueAsString(message));
-						} else {
-							throw new AuthorizationException(); // Not authorized to do this
-						}
+						UserAccountTemplate userToUpgrade = om.readValue(req.getReader(), UserAccountTemplate.class); // Read the PUT
+
+						as.guard(session, userToUpgrade.getUserId(), "Admin"); // If the current user is upgrading their account or an admin
+
+						uc.upgradeUser(userToUpgrade.getUserId(),userToUpgrade.getAccountId(), ac); // Try to upgrade
+						rsp.setStatus(200); // OK
+						message = new MessageTemplate("User #" + userToUpgrade.getUserId() + " has been made Premium. $100 deducted from Account #" + userToUpgrade.getAccountId());
+						rsp.getWriter().println(om.writeValueAsString(message));
+
 						return;
 					}
 				}

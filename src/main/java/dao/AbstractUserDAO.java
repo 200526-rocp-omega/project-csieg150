@@ -160,7 +160,7 @@ public class AbstractUserDAO implements IAbstractUserDAO {
 			
 			// The below updates all fields
 			String sql = "UPDATE USERS SET "
-					+ "USERNAME = ?, PASSWORD = ?, FIRST_NAME = ?, LAST_NAME = ?, EMAIL = ? WHERE ID = ?"; 
+					+ "USERNAME = ?, PASSWORD = ?, FIRST_NAME = ?, LAST_NAME = ?, EMAIL = ?, ROLE_ID = ? WHERE ID = ?"; 
 			
 			PreparedStatement stmnt = conn.prepareStatement(sql); //Insert values into statement
 			stmnt.setString(1, uname);
