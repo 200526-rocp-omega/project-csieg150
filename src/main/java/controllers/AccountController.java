@@ -6,6 +6,7 @@ import javax.servlet.http.HttpSession;
 
 import Service.AccountService;
 import Service.UserService;
+import exceptions.AuthorizationException;
 import exceptions.FailedStatementException;
 import models.AbstractAccount;
 import models.AbstractUser;
@@ -66,6 +67,8 @@ public class AccountController {
 					return; // exit the method, we don't want to add multiple accounts on accident.
 				}
 			}
+			
+			throw new AuthorizationException();
 		}
 		
 	}
