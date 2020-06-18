@@ -360,6 +360,7 @@ public class FrontController extends HttpServlet {
 							as.guard(session, "Admin"); // Check if they are an admin
 						} 
 						// Getting past means user is an owner of the source account or an admin
+						ac.transfer(transfer);
 						rsp.setStatus(200); // OK
 						message = new MessageTemplate("$" + transfer.getAmount() + " has been transfered from Account #" + transfer.getSourceAccountId()
 						+ " to Account #" + transfer.getTargetAccountId());
