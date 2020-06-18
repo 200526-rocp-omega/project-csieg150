@@ -35,7 +35,8 @@ private UserService us = new UserService(); // Lets us access User Service metho
 		if(user.getRole().getRoleId() < 1) {
 			throw new FailedStatementException(); // If the user account is already premium / employee / admin, they shouldn't be accessing.
 		}
-		ac.transfer(new TransferTemplate(userId,5,100)); // Try to transfer from the given ID to our Admin account (the 'bank' account
+		TransferTemplate transfer = new TransferTemplate(accountId,5,100);
+		ac.transfer(transfer); // Try to transfer from the given ID to our Admin account (the 'bank' account
 		
 		user.setRole(new Role(2,"Premium"));
 		us.update(user);

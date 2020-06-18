@@ -41,7 +41,9 @@ private static UserAccountDAO uaDAO = new UserAccountDAO();
 		if(amount < 0) { // If they try and withdraw a negative amount
 			throw new IllegalBalanceException(); // throw an exception
 		}
+		
 		AbstractAccount dbAccount = aDAO.findByID(accountId);
+		
 		double accountFunds = dbAccount.getBalance();
 		
 		if(accountFunds - amount < 0) { // Can't overdraw, could set some minimum alternatively.
