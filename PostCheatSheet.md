@@ -37,8 +37,8 @@ In order to ensure your post requests are handled properly, follow these formats
     "amount":00.00
 }
 ```
-* /accounts -  used for inserting new records into the USERS-ACCOUNTS table and ACCOUNTS
-  *
+* /accounts -  used for inserting new records into the USERS-ACCOUNTS table and ACCOUNTS. 
+  * Standard and Premium users can only input their ID to work with.
 ```json
 {
     "userId":0,
@@ -48,7 +48,7 @@ In order to ensure your post requests are handled properly, follow these formats
     "typeId":2
 }
 ```
-* /accounts?passtime  - used for accruing compound interest on saving accounts for X months
+* /accounts?passtime  - used for accruing compound interest on saving accounts for X months, admin only
 ```json
 {
     "numOfMonths":0
