@@ -165,21 +165,18 @@ public class FrontController extends HttpServlet {
 							List<AbstractAccount> results = ac.findByOwnerAndStatus(userId, statusId); // Fetch the list
 							rsp.setStatus(200); // OK
 							rsp.getWriter().println(om.writeValueAsString(results)); // Print results
-							
+							break;
 						} catch (NumberFormatException e) { //Invalid parse
 							rsp.setStatus(404);
 							message = new MessageTemplate("Resource not found");
 							rsp.getWriter().println(om.writeValueAsString(message));
 						}
 						
-					} else { // If no query string, then just grab the specified ID
+					}  // If no query string, then just grab the specified ID
 						// Confirmed works
 						rsp.getWriter().println(om.writeValueAsString(ac.findByOwner(userId))); // Write to HttpServletResponse
 						rsp.setStatus(200); // ok
 						break;
-						
-					}
-					break;
 					
 					
 				default: // If not accounts/status or accounts/owner
