@@ -157,7 +157,7 @@ public class FrontController extends HttpServlet {
 					}
 
 					if(req.getQueryString() != null) { // If there's a query string
-
+						// Confirmed works
 						try {
 							String[] query = req.getQueryString().toLowerCase().split("="); // First should be statusId, second is the id
 							int statusId = Integer.parseInt(query[1]); // Try to parse it, should be status
@@ -173,7 +173,7 @@ public class FrontController extends HttpServlet {
 						}
 						
 					} else { // If no query string, then just grab the specified ID
-						
+						// Confirmed works
 						rsp.getWriter().println(om.writeValueAsString(ac.findByOwner(userId))); // Write to HttpServletResponse
 						rsp.setStatus(200); // ok
 						break;
@@ -185,7 +185,7 @@ public class FrontController extends HttpServlet {
 				default: // If not accounts/status or accounts/owner
 					
 					try { // Try to parse from accounts/(accountId)
-						
+						//Confirmed works
 						int accountId = Integer.parseInt(portions[1]); // Parse our account ID
 						
 						
@@ -480,6 +480,7 @@ public class FrontController extends HttpServlet {
 						
 						rsp.setStatus(200); // OK
 						message = new MessageTemplate("User #" + putUserAccount.getUserId() + " added as joint owner to Account #" + putUserAccount.getAccountId());
+						rsp.getWriter().println(om.writeValueAsString(message));
 						break;
 					}
 				}

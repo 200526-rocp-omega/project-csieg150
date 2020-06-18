@@ -77,7 +77,7 @@ In order to ensure your post requests are handled properly, follow these formats
 	"accountId":0
 }
 ```
-* /users?addjointuser - checks if premium owner of given account ID (or Emp/Admin), if true then add the new user as joint owner of that account
+* /accounts?addjointuser - checks if premium owner of given account ID (or Emp/Admin), if true then add the new user as joint owner of that account
 ```json
 {
 	"userId":0,
