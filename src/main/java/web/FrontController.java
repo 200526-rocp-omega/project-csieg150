@@ -56,6 +56,7 @@ public class FrontController extends HttpServlet {
 			switch(portions[0]) {
 			
 			case "":
+				// Confirmed Works
 				rsp.setStatus(200); // 200 OK
 				message = new MessageTemplate("This is / . 'post' to /users?login with your credentials to access more of the site");
 				rsp.getWriter().println(om.writeValueAsString(message));
@@ -66,10 +67,12 @@ public class FrontController extends HttpServlet {
 					switch(req.getQueryString().toLowerCase()) {
 					
 					case "login":
+						// Confirmed Works
 						lc.doGet(req, rsp, message, om);
 						break;
 						
 					case "logout":
+						// Confirmed Works
 						lc.logout(req, rsp, message, om);
 						break;
 						
@@ -80,6 +83,7 @@ public class FrontController extends HttpServlet {
 				
 				as.guard(session);
 				if(portions.length > 1) {
+					// Confirmed Works
 					// If URI structured as /user/(something) - try and parse that something to see if it's a userId
 					// If it is, then access that user information if the currentuser is allowed to 
 					
@@ -97,6 +101,7 @@ public class FrontController extends HttpServlet {
 					rsp.getWriter().println(om.writeValueAsString(u));
 					
 				} else {
+					// Confirmed Works
 					// If not accessing a specific user, allow Employee or Admin to see list of all users.
 					as.guard(session, "Employee", "Admin");
 					List<AbstractUser> users = uc.findAll();
@@ -109,6 +114,7 @@ public class FrontController extends HttpServlet {
 				as.guard(session);
 				
 				if(portions.length==1) { // If the URI is just 'accounts'
+					// Confirmed Works
 					as.guard(session, "Employee", "Admin"); // Checks if employee or admin
 					List<AbstractAccount> accounts = ac.findAll(); // Get all accounts
 					rsp.getWriter().println(om.writeValueAsString(accounts));
@@ -315,7 +321,7 @@ public class FrontController extends HttpServlet {
 					switch(req.getQueryString().toLowerCase()) { // To make for more restful endpoints I want to involve query strings
 					
 					case "withdraw":
-						
+						//Confirmed works
 						AmountTemplate amount = om.readValue(req.getReader(), AmountTemplate.class); // fetch amount posted
 						BalanceTemplate withdraw = new BalanceTemplate(accountId,amount.getAmount()); // Fetch our account ID and amount to change
 					
@@ -331,7 +337,7 @@ public class FrontController extends HttpServlet {
 						break;
 						
 					case "deposit":
-						
+						//Confirmed works
 						AmountTemplate amountDeposit = om.readValue(req.getReader(), AmountTemplate.class); // Fetch our account ID and amount to change
 						BalanceTemplate deposit = new BalanceTemplate(accountId,amountDeposit.getAmount());
 						
@@ -347,8 +353,10 @@ public class FrontController extends HttpServlet {
 						break;
 					
 					case "transfer":
+						// Fetch source and target ids and transfer amount
+						BalanceTemplate postedTransfer = om.readValue(req.getReader(),BalanceTemplate.class);
+						TransferTemplate transfer = new TransferTemplate(accountId,postedTransfer.getAccountId(),postedTransfer.getAmount());
 						
-						TransferTemplate transfer = om.readValue(req.getReader(),TransferTemplate.class); // Fetch source and target ids and transfer amount
 						if(ac.isOwner(session, transfer.getSourceAccountId()) == false) { // If the user is not an owner of the account
 							as.guard(session, "Admin"); // Check if they are an admin
 						} 
