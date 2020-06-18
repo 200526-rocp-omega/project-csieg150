@@ -6,3 +6,4 @@ This is a list of things I wanted to get done but haven't had the time to do yet
 3. Making it so non-employee users can only create Pending accounts
 4. Added more exceptions with more specific explanations what went wrong
 5. Adding the 'View' part 
+6. Adding the 'Strech Goals' from the README
