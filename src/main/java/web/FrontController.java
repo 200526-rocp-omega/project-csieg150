@@ -326,7 +326,7 @@ public class FrontController extends HttpServlet {
 						// Getting past means user is an owner of the account or an admin
 						ac.withdraw(withdraw); // Withdraw the amount from the specified account
 						rsp.setStatus(200); // OK
-						message = new MessageTemplate("$" + withdraw.getAmount() + "has been withdrawn from Account #" + withdraw.getAccountId());
+						message = new MessageTemplate("$" + withdraw.getAmount() + " has been withdrawn from Account #" + withdraw.getAccountId());
 						rsp.getWriter().println(om.writeValueAsString(message)); // Write the updated account values.
 						break;
 						

@@ -23,3 +23,16 @@ In order to ensure your post requests are handled properly, follow these formats
     "roleId":1
 }
 ```
+* /accounts/(accountId)?deposit or /accounts/(accountId)?withdraw both take a single double 
+```json
+{
+    "amount":00.00
+}
+```
+* /accounts/(accountId)?transfer - the AccountId in the URI is our 'source' to withdraw, the posted data is our 'target' to deposit the amount to
+```json
+{
+	"accountId":0,
+    "amount":00.00
+}
+```
