@@ -47,9 +47,10 @@ In order to ensure your post requests are handled properly, follow these formats
     "typeId":2
 }
 ```
-* /accounts?passtime  - used for accrueing compound interest on saving accounts for X months
+* /accounts?passtime  - used for accruing compound interest on saving accounts for X months
 ```json
 {
     "numOfMonths":0
 }
 ```
+*

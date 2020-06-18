@@ -153,7 +153,7 @@ public class FrontController extends HttpServlet {
 					} catch(NumberFormatException e) { // Catch in case there's not a valid resource
 						
 						rsp.getWriter().println(om.writeValueAsString(message));
-						
+						break;
 					}
 
 					if(req.getQueryString() != null) { // If there's a query string
@@ -174,11 +174,7 @@ public class FrontController extends HttpServlet {
 						
 					} else { // If no query string, then just grab the specified ID
 						
-						
-						List<AbstractAccount> accounts = ac.findByOwner(userId); // grab the list of associated accounts
-						
 						rsp.getWriter().println(om.writeValueAsString(ac.findByOwner(userId))); // Write to HttpServletResponse
-						rsp.getWriter().println(om.writeValueAsString(accounts)); // Write to HttpServletResponse
 						rsp.setStatus(200); // ok
 						break;
 						
@@ -278,7 +274,7 @@ public class FrontController extends HttpServlet {
 
 				if(portions.length == 1) { // Just /accounts - posting there is for creating accounts or passtime, depending on query
 					
-					if(req.getQueryString() != null) {
+					if(req.getQueryString() != null) { // If it has a query string
 						if(req.getQueryString().toLowerCase().equals("passtime")) { // if /accounts?passTime
 							// Confirmed works
 							
@@ -294,7 +290,7 @@ public class FrontController extends HttpServlet {
 						}
 					}
 					
-					
+					// It has no meaningful query string so it's probably trying to post an account
 					PostAccountTemplate postedAccount = om.readValue(req.getReader(), PostAccountTemplate.class); // Get values
 					int userId = postedAccount.getUserId(); // Find associated userID
 					as.guard(session, userId, "Employee", "Admin"); // Check if Employee or admin, or belongs to the user
