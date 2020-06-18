@@ -59,6 +59,10 @@ public class AccountController {
 			
 			UserService us = new UserService(); // We will need to find the Roles of owners, so we call user services
 			
+			if(us.findByID(currentUserId).getRole().getRoleId() <4) { // If not an owner of the account, only admins should do this
+				throw new AuthorizationException();
+			}
+			
 			for(UserAccount owner : as.ownersOfAccount(userAccount.getAccountId())) { // For every User/Account pair with the right account ID
 				
 				AbstractUser user = us.findByID(owner.getUserId()); // Get the user information from our User service
