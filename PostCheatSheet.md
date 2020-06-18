@@ -57,4 +57,30 @@ In order to ensure your post requests are handled properly, follow these formats
 
 ### PUT
 * /users - used to update a user account. Standard/Premium users can update their own accounts, Emp and Admin can adjust others
-
+  * Important to note that getting the User ID correct, and that unless you're an Admin the roleId field won't update
+```json
+{
+    "userId":0,
+    "username":"username",
+    "password":"pass",
+    "firstName":"John",
+    "lastName":"Doe",
+    "email":"jdoe@generic.com",
+    "roleId":1
+}
+```
+* /users?upgrade - checks if standard user is upgrading self or if admin is upgrading them. userId is the user to go from standard -> premium
+  * note there's a 100$ transfer from the accountId given to the Admin's account to simulate a fee.
+```json
+{
+	"userId":0,
+	"accountId":0
+}
+```
+* /users?addjointuser - checks if premium owner of given account ID (or Emp/Admin), if true then add the new user as joint owner of that account
+```json
+{
+	"userId":0,
+	"accountId":0
+}
+```
