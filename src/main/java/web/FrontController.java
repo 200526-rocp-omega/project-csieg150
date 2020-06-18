@@ -115,6 +115,7 @@ public class FrontController extends HttpServlet {
 					as.guard(session, "Employee", "Admin"); // Checks if employee or admin
 					List<AbstractAccount> accounts = ac.findAll(); // Get all accounts
 					rsp.getWriter().println(om.writeValueAsString(accounts));
+					rsp.setStatus(200); // OK
 					break;
 				}
 				switch(portions[1]) {
