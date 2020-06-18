@@ -470,7 +470,13 @@ public class FrontController extends HttpServlet {
 						
 						AbstractUser currentuser = (AbstractUser) session.getAttribute("currentuser");
 						
-						ac.addUserAccount(putUserAccount, currentuser.getUserId());
+						if(currentuser.getRole().getRoleId() == 2) { // If only a Premium user
+							if(!ac.isOwner(session, putUserAccount.getAccountId())) { // If not an owner of the account
+								throw new AuthorizationException(); // Unauthorized
+							}
+						}					
+						
+						ac.addUserAccount(putUserAccount, currentuser.getUserId()); // Add the new joint user
 						
 						rsp.setStatus(200); // OK
 						message = new MessageTemplate("User #" + putUserAccount.getUserId() + " added as joint owner to Account #" + putUserAccount.getAccountId());
