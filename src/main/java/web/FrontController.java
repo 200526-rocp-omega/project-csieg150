@@ -69,12 +69,12 @@ public class FrontController extends HttpServlet {
 					case "login":
 						// Confirmed Works
 						lc.doGet(req, rsp, message, om);
-						break;
+						return;
 						
 					case "logout":
 						// Confirmed Works
 						lc.logout(req, rsp, message, om);
-						break;
+						return;
 					}
 				}
 				
