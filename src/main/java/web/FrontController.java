@@ -75,10 +75,7 @@ public class FrontController extends HttpServlet {
 						// Confirmed Works
 						lc.logout(req, rsp, message, om);
 						break;
-						
-					// No default case just yet - we'll have more opportunities for querystring later
 					}
-					return;
 				}
 				
 				as.guard(session);
