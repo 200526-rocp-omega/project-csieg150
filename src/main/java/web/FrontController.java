@@ -445,7 +445,13 @@ public class FrontController extends HttpServlet {
 					}
 				}
 				
-				AbstractUser u = om.readValue(req.getReader(), AbstractUser.class); // Pulls out the User from the request.
+				PostUserTemplate postedUser = om.readValue(req.getReader(), PostUserTemplate.class); //Read from PUT input
+				if(((AbstractUser) session.getAttribute("currentuser")).getRole().getRoleId() < 4) { // If current user is not admin
+					AbstractUser dbUser = uc.accessUser(postedUser.getUserId()); // Find their current role
+					postedUser.setRoleId(dbUser.getRole().getRoleId()); // Overwrite their input with the found value
+				}
+				
+				AbstractUser u = postedUser.toUser(); // Pulls out the User from the request.
 				
 				as.guard(session, u.getUserId(), "Admin"); // Checks if either the appropriate User or an Admin
 				AbstractUser user = uc.updateUser(u);
@@ -472,8 +478,10 @@ public class FrontController extends HttpServlet {
 					}
 				}
 				
-				AbstractAccount account = om.readValue(req.getReader(), AbstractAccount.class); // Pull the account info from the request
 				as.guard(session, "Admin"); // Only allow Admins to perform this kind of update.
+				PostAccountTemplate postedAccount = om.readValue(req.getReader(), PostAccountTemplate.class); // Pull the account info from the request
+				AbstractAccount account = postedAccount.toAccount(); 
+				
 				AbstractAccount updatedAccount = ac.update(account);
 				rsp.setStatus(200); // 200 OK
 				rsp.getWriter().println(om.writeValueAsString(updatedAccount)); // Return the updated accounts

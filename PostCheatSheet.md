@@ -1,6 +1,7 @@
 ## POST Formating & PUT Formating
 In order to ensure your post requests are handled properly, follow these formats:
 
+### POST
 * /users?login : Posting credentials to log in. Cross references with the database to make sure everything matches.
 ```json
 {
@@ -53,4 +54,7 @@ In order to ensure your post requests are handled properly, follow these formats
     "numOfMonths":0
 }
 ```
-*
+
+### PUT
+* /users - used to update a user account. Standard/Premium users can update their own accounts, Emp and Admin can adjust others
+
