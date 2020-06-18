@@ -36,3 +36,20 @@ In order to ensure your post requests are handled properly, follow these formats
     "amount":00.00
 }
 ```
+* /accounts -  used for inserting new records into the USERS-ACCOUNTS table and ACCOUNTS
+  *
+```json
+{
+    "userId":0,
+    "accountId":0,
+    "balance":0.0,
+    "statusId":1,
+    "typeId":2
+}
+```
+* /accounts?passtime  - used for accrueing compound interest on saving accounts for X months
+```json
+{
+    "numOfMonths":0
+}
+```

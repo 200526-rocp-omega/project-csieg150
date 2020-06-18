@@ -240,6 +240,7 @@ public class FrontController extends HttpServlet {
 	@Override
 	protected void doPost(HttpServletRequest req, HttpServletResponse rsp)
 			throws ServletException, IOException{
+		// Confirmed works I believe
 		
 		rsp.setContentType("application/json");
 		
@@ -279,6 +280,7 @@ public class FrontController extends HttpServlet {
 					
 					if(req.getQueryString() != null) {
 						if(req.getQueryString().toLowerCase().equals("passtime")) { // if /accounts?passTime
+							// Confirmed works
 							
 							// Accrue an amount of compound interest per month 
 							as.guard(session, "Admin"); //Check if user is admin
@@ -353,6 +355,7 @@ public class FrontController extends HttpServlet {
 						break;
 					
 					case "transfer":
+						//Confirmed Works
 						// Fetch source and target ids and transfer amount
 						BalanceTemplate postedTransfer = om.readValue(req.getReader(),BalanceTemplate.class);
 						TransferTemplate transfer = new TransferTemplate(accountId,postedTransfer.getAccountId(),postedTransfer.getAmount());
@@ -448,7 +451,7 @@ public class FrontController extends HttpServlet {
 						} else {
 							throw new AuthorizationException(); // Not authorized to do this
 						}
-						
+						return;
 					}
 				}
 				

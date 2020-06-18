@@ -42,10 +42,10 @@ public class AccountController {
 	
 	public AbstractAccount insert(PostAccountTemplate postedAccount) {
 		// Take info from posted account object and add records to the appropriate tables.
-		
-		if(as.insert(postedAccount.toAccount()) < 1) throw new FailedStatementException(); // Insert into record Account table
-		as.addUserAccount(postedAccount.getUserId(), postedAccount.getAccountId()); // Add relationship to Users-Accounts table
-		return this.findAccountById(postedAccount.getAccountId());
+		AbstractAccount account = postedAccount.toAccount();
+		if(as.insert(account) < 1) throw new FailedStatementException(); // Insert into record Account table
+		as.addUserAccount(postedAccount.getUserId(), account.getAccountId()); // Add relationship to Users-Accounts table
+		return this.findAccountById(account.getAccountId());
 	}
 	
 	public void addUserAccount(UserAccountTemplate userAccount, int currentUserId) {
